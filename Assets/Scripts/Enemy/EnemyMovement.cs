@@ -5,10 +5,15 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
     public float speed;
-    private int facingDirection = 1;
-    public EnemyState enemyState;
+    public float attackRange = 2;
+    public float attackCooldown = 2;
+    public float playerDectectRange = 5;
+    public Transform detectionPoint;
+    public LayerMask playerLayer;
 
-    public float attackRange = 1;
+    private float attackCooldownTimer;
+    private EnemyState enemyState;
+    private int facingDirection = 1;
 
     private Rigidbody2D rb;
     private Transform player;
@@ -25,17 +30,21 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CheckForPlayer();
+        if (attackCooldownTimer > 0)
+            attackCooldownTimer -= Time.deltaTime;
+
         if (enemyState == EnemyState.Chasing)
             Chase();
         else if (enemyState == EnemyState.Attacking)
-            Attack();
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     private void Chase()
     {
-        if (Vector2.Distance(transform.position, player.transform.position) <= attackRange)
-            ChangeState(EnemyState.Attacking);
-        else if (
+        if (
             (player.position.x > transform.position.x && facingDirection == -1)
             || (player.position.x < transform.position.x && facingDirection == 1)
         )
@@ -44,11 +53,6 @@ public class EnemyMovement : MonoBehaviour
         }
         Vector2 direction = (player.position - transform.position).normalized;
         rb.linearVelocity = direction * speed;
-    }
-
-    private void Attack()
-    {
-        rb.linearVelocity = Vector2.zero;
     }
 
     private void Flip()
@@ -61,23 +65,39 @@ public class EnemyMovement : MonoBehaviour
         );
     }
 
-    private void OnTriggerStay2D(Collider2D other)
+    private void CheckForPlayer()
     {
-        if (other.gameObject.tag == "Player")
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            detectionPoint.position,
+            playerDectectRange,
+            playerLayer
+        );
+
+        if (hits.Length > 0)
         {
-            if (player == null)
-                player = other.transform;
-            ChangeState(EnemyState.Chasing);
+            player = hits[0].transform;
+            if (
+                Vector2.Distance(transform.position, player.transform.position) <= attackRange
+                && attackCooldownTimer <= 0
+            )
+            {
+                attackCooldownTimer = attackCooldown;
+                ChangeState(EnemyState.Attacking);
+            }
+            else if (Vector2.Distance(transform.position, player.transform.position) > attackRange)
+                ChangeState(EnemyState.Chasing);
+        }
+        else
+        {
+            rb.linearVelocity = Vector2.zero;
+            ChangeState(EnemyState.Idle);
         }
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.gameObject.tag == "Player")
-        {
-            rb.linearVelocity = Vector2.zero;
             ChangeState(EnemyState.Idle);
-        }
     }
 
     private void ChangeState(EnemyState newState)

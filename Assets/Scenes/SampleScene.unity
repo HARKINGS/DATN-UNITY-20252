@@ -528,7 +528,7 @@ MonoBehaviour:
   m_Intensity: 1
   m_LightVolumeIntensity: 1
   m_LightVolumeEnabled: 0
-  m_ApplyToSortingLayers: 00000000
+  m_ApplyToSortingLayers: 00000000f7b14792
   m_LightCookieSprite: {fileID: 0}
   m_DeprecatedPointLightCookieSprite: {fileID: 0}
   m_LightOrder: 0
@@ -1137,27 +1137,39 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5148363943040119721, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
       propertyPath: m_Size.x
-      value: 1.1098852
+      value: 1.1356325
       objectReference: {fileID: 0}
     - target: {fileID: 5148363943040119721, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
       propertyPath: m_Size.y
-      value: 2.10134
+      value: 2.2043288
       objectReference: {fileID: 0}
     - target: {fileID: 5148363943040119721, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
       propertyPath: m_Offset.x
-      value: -0.13278341
+      value: -0.11991072
       objectReference: {fileID: 0}
     - target: {fileID: 5148363943040119721, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
       propertyPath: m_Offset.y
-      value: -0.69933
+      value: -0.77657163
       objectReference: {fileID: 0}
     - target: {fileID: 6715539668630580963, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
       propertyPath: damage
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6715539668630580963, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6715539668630580963, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
+      propertyPath: attackPoint
+      value: 
+      objectReference: {fileID: 1959383245}
+    - target: {fileID: 6715539668630580963, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
+      propertyPath: weaponRange
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6715539668630580963, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
+      propertyPath: playerLayer.m_Bits
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 6920905172665878990, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1204,6 +1216,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
+--- !u!4 &1959383245 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6390414354595924102, guid: 38c0c2d88499f6c4dae5db27d3ddc4ef, type: 3}
+  m_PrefabInstance: {fileID: 1959383244}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2008137388 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2722214143582712568, guid: c8bd8f828ccc068419a7024f27f48178, type: 3}
@@ -1327,6 +1344,10 @@ PrefabInstance:
     - target: {fileID: -7318077974125706497, guid: c8bd8f828ccc068419a7024f27f48178, type: 3}
       propertyPath: m_Offset.y
       value: -0.7362213
+      objectReference: {fileID: 0}
+    - target: {fileID: -6355359029500802639, guid: c8bd8f828ccc068419a7024f27f48178, type: 3}
+      propertyPath: m_Mass
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 378174422398808703, guid: c8bd8f828ccc068419a7024f27f48178, type: 3}
       propertyPath: m_SortingOrder
@@ -1479,6 +1500,10 @@ PrefabInstance:
     - target: {fileID: 9081977017263979903, guid: c8bd8f828ccc068419a7024f27f48178, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 9081977017263979903, guid: c8bd8f828ccc068419a7024f27f48178, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 9081977017263979903, guid: c8bd8f828ccc068419a7024f27f48178, type: 3}
       propertyPath: m_TagString
