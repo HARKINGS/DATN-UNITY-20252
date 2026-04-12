@@ -5,6 +5,8 @@ public class EnemyCombat : MonoBehaviour
     public int damage = 1;
     public Transform attackPoint;
     public float weaponRange;
+    public float knockbackForce;
+    public float stunTime;
     public LayerMask playerLayer;
 
     // private void OnCollisionEnter2D(Collision2D other)
@@ -21,6 +23,9 @@ public class EnemyCombat : MonoBehaviour
             playerLayer
         );
         if (hits.Length > 0)
-            hits[0].GetComponent<PlayerHealth>().ChangeHealth(-damage);
+        {
+            hits[0].GetComponent<PlayerHealth>().ChangeHealth(-damage); 
+            hits[0].GetComponent<PlayerMovement>().Knockback(transform, knockbackForce, stunTime);
+        }
     }
 }

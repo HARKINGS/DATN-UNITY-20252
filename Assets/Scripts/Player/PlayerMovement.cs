@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Dynamic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,12 +12,15 @@ public class PlayerMovement : MonoBehaviour
     public InputAction MoveAction;
     public InputAction AttackAction;
     public Animator animator;
+    public PlayerCombat playerCombat;
     private Rigidbody2D rb2d;
     private Vector2 move;
 
     // true: di chuyển cùng hướng, false: di chuyển ngược hướng
     private bool isFacingDirect = true;
+
     private bool isAttack = false;
+    private bool isKnockedBack = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -37,28 +39,39 @@ public class PlayerMovement : MonoBehaviour
     {
         move = MoveAction.ReadValue<Vector2>();
 
-        if (AttackAction.triggered && !isAttack)
+        if (AttackAction.triggered)
         {
-            Debug.Log("Attack!");
             isAttack = true;
+            playerCombat.Attack();
             CancelInvoke(nameof(EndAttack));
             Invoke(nameof(EndAttack), 0.5f);
         }
-    }
 
-    private void FixedUpdate()
-    {
-        animator.SetFloat("horizontal", Mathf.Abs(move.x));
-        animator.SetFloat("vertical", Mathf.Abs(move.y));
-        animator.SetBool("isAttack", isAttack);
-
-        Flip();
-
-        Vector2 position = (Vector2)rb2d.position + move * speed * Time.deltaTime;
-        rb2d.MovePosition(position);
+        // if (AttackAction.triggered && !isAttack)
+        // {
+        //     Debug.Log("Attack!");
+        //     isAttack = true;
+        //     CancelInvoke(nameof(EndAttack));
+        //     Invoke(nameof(EndAttack), 0.5f);
+        // }
     }
 
     private void EndAttack() => isAttack = false;
+
+    private void FixedUpdate()
+    {
+        if (!isKnockedBack)
+        {
+            animator.SetFloat("horizontal", Mathf.Abs(move.x));
+            animator.SetFloat("vertical", Mathf.Abs(move.y));
+            // animator.SetBool("isAttack", isAttack);
+
+            Flip();
+
+            Vector2 position = (Vector2)rb2d.position + move * speed * Time.deltaTime;
+            rb2d.MovePosition(position);
+        }
+    }
 
     private void Flip()
     {
@@ -80,5 +93,20 @@ public class PlayerMovement : MonoBehaviour
                 transform.localScale.z
             );
         }
+    }
+
+    public void Knockback(Transform enemy, float force, float stunTime)
+    {
+        isKnockedBack = true;
+        Vector2 direction = (transform.position - enemy.position).normalized;
+        rb2d.linearVelocity = direction * force;
+        StartCoroutine(KnockbackCounter(stunTime));
+    }
+
+    IEnumerator KnockbackCounter(float stunTime)
+    {
+        yield return new WaitForSeconds(stunTime);
+        rb2d.linearVelocity = Vector2.zero;
+        isKnockedBack = false;
     }
 }

@@ -16,7 +16,8 @@ GameObject:
   - component: {fileID: 753968845950486991}
   - component: {fileID: 5103885511736303178}
   - component: {fileID: 166951019909520023}
-  m_Layer: 0
+  - component: {fileID: 1871400770180424176}
+  m_Layer: 7
   m_Name: Refect Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -136,6 +137,8 @@ MonoBehaviour:
   damage: 1
   attackPoint: {fileID: 0}
   weaponRange: 0
+  knockbackForce: 0
+  stunTime: 0
   playerLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -259,6 +262,20 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 1.75
+--- !u!114 &1871400770180424176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167618663516176533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf60cc566537884183827563f6484b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  currentHealth: 0
+  maxHealth: 0
 --- !u!1 &7362041864566483237
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,7 +285,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5840501824517806579}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DetectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -299,7 +316,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6390414354595924102}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: AttackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
