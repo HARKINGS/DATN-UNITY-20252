@@ -4,6 +4,9 @@ public class PlayerCombat : MonoBehaviour
 {
     public Transform attackPoint;
     public float weaponRange;
+    public float knockbackForce = 50;
+    public float knockbackTime = .15f;
+    public float stunTime = .3f;
     public LayerMask enemyLayer;
     public int damage = 1;
 
@@ -37,9 +40,14 @@ public class PlayerCombat : MonoBehaviour
             enemyLayer
         );
 
+        // Debug.Log($"[DealDamage] attackPoint={attackPoint.position}, range={weaponRange}, hits={enemies.Length}");
+        // foreach (Collider2D e in enemies)
+        //     Debug.Log($"  -> Collider: '{e.name}' | Layer: {LayerMask.LayerToName(e.gameObject.layer)} | Distance: {Vector2.Distance(attackPoint.position, e.transform.position)}");
+
         if (enemies.Length > 0)
         {
             enemies[0].GetComponent<EnemyHealth>().ChangeHealth(-damage);
+            enemies[0].GetComponent<EnemyKnockback>().Knockback(transform, knockbackForce, knockbackTime, stunTime);
         }
     }
 
@@ -48,8 +56,9 @@ public class PlayerCombat : MonoBehaviour
         anim.SetBool("isAttack", false);
     }
 
-    private void OnDrawGizmosSelected() {
+    private void OnDrawGizmosSelected()
+    {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, weaponRange);    
+        Gizmos.DrawWireSphere(attackPoint.position, weaponRange);
     }
 }

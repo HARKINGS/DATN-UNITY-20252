@@ -30,15 +30,18 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckForPlayer();
-        if (attackCooldownTimer > 0)
-            attackCooldownTimer -= Time.deltaTime;
-
-        if (enemyState == EnemyState.Chasing)
-            Chase();
-        else if (enemyState == EnemyState.Attacking)
+        if (enemyState != EnemyState.Knockback)
         {
-            rb.linearVelocity = Vector2.zero;
+            CheckForPlayer();
+            if (attackCooldownTimer > 0)
+                attackCooldownTimer -= Time.deltaTime;
+
+            if (enemyState == EnemyState.Chasing)
+                Chase();
+            else if (enemyState == EnemyState.Attacking)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
         }
     }
 
@@ -81,16 +84,17 @@ public class EnemyMovement : MonoBehaviour
                 && attackCooldownTimer <= 0
             )
             {
-                Debug.Log("Range: Ok!");
                 attackCooldownTimer = attackCooldown;
                 ChangeState(EnemyState.Attacking);
             }
-            else if (Vector2.Distance(transform.position, player.transform.position) > attackRange && enemyState != EnemyState.Attacking)
+            else if (
+                Vector2.Distance(transform.position, player.transform.position) > attackRange
+                && enemyState != EnemyState.Attacking
+            )
                 ChangeState(EnemyState.Chasing);
         }
         else
         {
-            rb.linearVelocity = Vector2.zero;
             ChangeState(EnemyState.Idle);
         }
     }
@@ -101,7 +105,7 @@ public class EnemyMovement : MonoBehaviour
             ChangeState(EnemyState.Idle);
     }
 
-    private void ChangeState(EnemyState newState)
+    public void ChangeState(EnemyState newState)
     {
         // Exit the current state
         if (enemyState == EnemyState.Idle)
@@ -129,4 +133,5 @@ public enum EnemyState
     Idle,
     Chasing,
     Attacking,
+    Knockback,
 }

@@ -11,15 +11,15 @@ GameObject:
   - component: {fileID: 6920905172665878990}
   - component: {fileID: 3844838751447239023}
   - component: {fileID: 7476741714790541940}
-  - component: {fileID: 6715539668630580963}
   - component: {fileID: 5148363943040119721}
   - component: {fileID: 753968845950486991}
+  - component: {fileID: 6715539668630580963}
   - component: {fileID: 5103885511736303178}
-  - component: {fileID: 166951019909520023}
   - component: {fileID: 1871400770180424176}
+  - component: {fileID: -356088560197641452}
   m_Layer: 7
   m_Name: Refect Enemy
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -122,26 +122,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &6715539668630580963
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167618663516176533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c1e44c19c99fd643a37d2b27249a7c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyCombat
-  damage: 1
-  attackPoint: {fileID: 0}
-  weaponRange: 0
-  knockbackForce: 0
-  stunTime: 0
-  playerLayer:
-    serializedVersion: 2
-    m_Bits: 0
 --- !u!70 &5148363943040119721
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -206,6 +186,26 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 4
+--- !u!114 &6715539668630580963
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167618663516176533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c1e44c19c99fd643a37d2b27249a7c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyCombat
+  damage: 1
+  attackPoint: {fileID: 6390414354595924102}
+  weaponRange: 0
+  knockbackForce: 0
+  stunTime: 0
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!114 &5103885511736303178
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,18 +221,76 @@ MonoBehaviour:
   speed: 3
   attackRange: 1.5
   attackCooldown: 2
-  playerDectectRange: 5
+  playerDectectRange: 10
   detectionPoint: {fileID: 5840501824517806579}
   playerLayer:
     serializedVersion: 2
     m_Bits: 64
---- !u!58 &166951019909520023
-CircleCollider2D:
+--- !u!114 &1871400770180424176
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1167618663516176533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbf60cc566537884183827563f6484b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+  currentHealth: 10
+  maxHealth: 10
+--- !u!114 &-356088560197641452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167618663516176533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbcc977323612a54bbfa2088fc5540a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyKnockback
+--- !u!1 &7362041864566483237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5840501824517806579}
+  - component: {fileID: 5826668043659084639}
+  m_Layer: 8
+  m_Name: DetectionPoint
+  m_TagString: EnemyDetection
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5840501824517806579
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362041864566483237}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.01, y: -0.35, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6920905172665878990}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &5826668043659084639
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7362041864566483237}
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
@@ -261,52 +319,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 1.75
---- !u!114 &1871400770180424176
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167618663516176533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbf60cc566537884183827563f6484b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
-  currentHealth: 0
-  maxHealth: 0
---- !u!1 &7362041864566483237
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 5840501824517806579}
-  m_Layer: 7
-  m_Name: DetectionPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &5840501824517806579
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7362041864566483237}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.01, y: -0.35, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6920905172665878990}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_Radius: 5.5
 --- !u!1 &8443249233598712575
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,7 +329,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6390414354595924102}
-  m_Layer: 7
+  m_Layer: 0
   m_Name: AttackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

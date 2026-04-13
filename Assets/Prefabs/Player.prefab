@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5550211976620748905}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AttackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 833354532249952616}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.02, y: -0.96, z: 0}
+  m_LocalPosition: {x: 1.64, y: -0.7, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -46,9 +46,10 @@ GameObject:
   - component: {fileID: -7318077974125706497}
   - component: {fileID: 5364480669481294714}
   - component: {fileID: -7690287791804634522}
-  m_Layer: 0
+  - component: {fileID: 1202211385924982916}
+  m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -317,7 +318,7 @@ MonoBehaviour:
       m_Flags: 8
     m_Flags: 0
   AttackAction:
-    m_Name: 
+    m_Name: Attack
     m_Type: 0
     m_ExpectedControlType: 
     m_Id: c9cc629f-aa34-4628-834a-ed4f9524d8a4
@@ -325,8 +326,8 @@ MonoBehaviour:
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
-  animator: {fileID: 0}
-  playerCombat: {fileID: 0}
+  animator: {fileID: 3610072055491830945}
+  playerCombat: {fileID: 1202211385924982916}
 --- !u!114 &-7690287791804634522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -339,8 +340,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd083f13f208d0041b72fd6666d9dc5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  maxHealth: 5
-  currentHealth: 0
+  maxHealth: 10
+  currentHealth: 10
   healthText: {fileID: 0}
   healthTextAnim: {fileID: 0}
   hpRect: {fileID: 0}
+--- !u!114 &1202211385924982916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9081977017263979903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da82d5effec064443bfc0146408c50cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
+  attackPoint: {fileID: 5550211976620748905}
+  weaponRange: 1.5
+  knockbackForce: 50
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  damage: 1
+  anim: {fileID: 3610072055491830945}
+  cooldown: 1
