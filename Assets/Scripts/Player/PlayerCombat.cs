@@ -3,12 +3,13 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     public Transform attackPoint;
-    public float weaponRange;
-    public float knockbackForce = 50;
-    public float knockbackTime = .15f;
-    public float stunTime = .3f;
+    //public float weaponRange;
+    //public float knockbackForce = 50;
+    //public float knockbackTime = .15f;
+    //public float stunTime = .3f;
     public LayerMask enemyLayer;
-    public int damage = 1;
+    //public int damage = 1;
+    public StatsManager statsManager;
 
     public Animator anim;
 
@@ -36,18 +37,17 @@ public class PlayerCombat : MonoBehaviour
     {
         Collider2D[] enemies = Physics2D.OverlapCircleAll(
             attackPoint.position,
-            weaponRange,
+            StatsManager.Instance.weaponRange,
             enemyLayer
         );
 
-        // Debug.Log($"[DealDamage] attackPoint={attackPoint.position}, range={weaponRange}, hits={enemies.Length}");
-        // foreach (Collider2D e in enemies)
-        //     Debug.Log($"  -> Collider: '{e.name}' | Layer: {LayerMask.LayerToName(e.gameObject.layer)} | Distance: {Vector2.Distance(attackPoint.position, e.transform.position)}");
-
         if (enemies.Length > 0)
         {
-            enemies[0].GetComponent<EnemyHealth>().ChangeHealth(-damage);
-            enemies[0].GetComponent<EnemyKnockback>().Knockback(transform, knockbackForce, knockbackTime, stunTime);
+            enemies[0].GetComponent<EnemyHealth>().ChangeHealth(-StatsManager.Instance.damage);
+            enemies[0].GetComponent<EnemyKnockback>().Knockback(transform, 
+                StatsManager.Instance.knockbackForce, 
+                StatsManager.Instance.knockbackTime, 
+                StatsManager.Instance.stunTime);
         }
     }
 
@@ -59,6 +59,6 @@ public class PlayerCombat : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, weaponRange);
+        Gizmos.DrawWireSphere(attackPoint.position, statsManager.weaponRange);
     }
 }

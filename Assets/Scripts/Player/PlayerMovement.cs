@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5.0f;
+    //public float speed = 5.0f;
     private float horizontal;
     private float vertical;
 
@@ -68,7 +68,7 @@ public class PlayerMovement : MonoBehaviour
 
             Flip();
 
-            Vector2 position = (Vector2)rb2d.position + move * speed * Time.deltaTime;
+            Vector2 position = (Vector2)rb2d.position + move * StatsManager.Instance.speed * Time.deltaTime;
             rb2d.MovePosition(position);
         }
     }

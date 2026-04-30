@@ -96,6 +96,7 @@ public class EnemyMovement : MonoBehaviour
         else
         {
             ChangeState(EnemyState.Idle);
+            rb.linearVelocity = Vector2.zero;
         }
     }
 
@@ -126,12 +127,4 @@ public class EnemyMovement : MonoBehaviour
         else if (enemyState == EnemyState.Attacking)
             anim.SetBool("isAttacking", true);
     }
-}
-
-public enum EnemyState
-{
-    Idle,
-    Chasing,
-    Attacking,
-    Knockback,
 }
