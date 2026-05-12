@@ -126,7 +126,7 @@ public class EnemyMovement : MonoBehaviour
         // Update our current state
         enemyState = newState;
 
-        // Update the new animation
+        // Update the new anim
         if (enemyState == EnemyState.Idle)
             anim.SetBool("isIdle", true);
         else if (enemyState == EnemyState.Chasing)

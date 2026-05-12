@@ -18,7 +18,12 @@ public class CharacterHealth : MonoBehaviour, IHealth
 
     public void ChangeHealth(DamageData damageData)
     {
-        CurrentHealth += damageData.Damage;
+        Debug.Log("Change Health: " + damageData.Damage);
+        CurrentHealth -= damageData.Damage;
+        Debug.Log(CurrentHealth);
+
+        if (CurrentHealth > stats.MaxHealth)
+            CurrentHealth = stats.MaxHealth;
 
         OnHealthChanged?.Invoke(CurrentHealth);
         OnHurt?.Invoke();
@@ -26,6 +31,7 @@ public class CharacterHealth : MonoBehaviour, IHealth
         if (CurrentHealth <= 0)
         {
             OnDeath?.Invoke();
+            gameObject.SetActive(false);
         }
     }
 }

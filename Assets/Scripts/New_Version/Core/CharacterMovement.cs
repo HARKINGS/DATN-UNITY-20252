@@ -1,22 +1,27 @@
 using UnityEditor.Tilemaps;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CharacterMovement : MonoBehaviour, IMovable
 {
-    [SerializeField] private Rigidbody2D rb;
-    [SerializeField] private CharacterStats stats;
+    private Rigidbody2D rb;
+    private CharacterAnimation anim;
 
     private Vector2 moveDirection;
     private bool isFlipped = false;
 
+    //public InputAction MoveAction;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<CharacterAnimation>();
+        //MoveAction.Enable();
     }
 
-    public void Move(Vector2 direction)
+    public void Move(Vector2 move)
     {
-        moveDirection = direction;
+        moveDirection = move;
     }
 
     public void Stop()
@@ -28,6 +33,7 @@ public class CharacterMovement : MonoBehaviour, IMovable
     {
         Vector2 position = (Vector2)rb.position + moveDirection * StatsManager.Instance.speed * Time.deltaTime;
         rb.MovePosition(position);
+        anim.SetMove(moveDirection);
         Flip();
     }
 

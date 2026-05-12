@@ -41,7 +41,7 @@ public class EnemyHealth : MonoBehaviour
         GetComponent<Collider2D>().enabled = false;
         GetComponent<Rigidbody2D>().simulated = false;
 
-        // Đợi thời gian animation chết chạy (ví dụ 2 giây)
+        // Đợi thời gian anim chết chạy (ví dụ 2 giây)
         yield return new WaitForSeconds(2f);
 
         //gameObject.SetActive(false);

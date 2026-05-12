@@ -2,8 +2,9 @@ using UnityEngine;
 
 public class CharacterAnimation : MonoBehaviour
 {
-    private Animator animator;
+    [SerializeField] private Animator animator;
     private CharacterHealth health;
+    private SkillBase currentSkill;
 
     private void Awake()
     {
@@ -11,35 +12,42 @@ public class CharacterAnimation : MonoBehaviour
         health = GetComponent<CharacterHealth>();
     }
 
-    private void OnEnable()
+    public void PlaySkill(
+        SkillBase skill,
+        string trigger)
     {
-        health.OnHurt += PlayHurt;
-        health.OnDeath += PlayDeath;
+        currentSkill = skill;
+
+        animator.ResetTrigger(trigger);
+        animator.SetTrigger(trigger);
     }
 
-    private void OnDisable()
+    // Animation Event
+    public void AnimationEvent_ApplySkill()
     {
-        health.OnHurt -= PlayHurt;
-        health.OnDeath -= PlayDeath;
+        Debug.Log("Apply_Effect");
+        currentSkill?.ApplyEffect();
     }
 
-    private void PlayHurt()
+    // Animation Event
+    public void AnimationEvent_EndSkill()
     {
-        animator.SetTrigger("Hurt");
+        currentSkill = null;
     }
 
-    private void PlayDeath()
+    public void SetMove(Vector2 move)
     {
-        animator.SetTrigger("Death");
-    }
-
-    public void SetMove(bool moving)
-    {
-        animator.SetBool("isMove", moving);
+        animator.SetFloat("horizontal", Mathf.Abs(move.x));
+        animator.SetFloat("vertical", Mathf.Abs(move.y));
     }
 
     public void PlayAttack()
     {
-        animator.SetTrigger("Attack");
+        animator.SetBool("isAttack", true);
     }
+
+    public void FinishAttack()
+    {
+        animator.SetBool("isAttack", false);
+    }    
 }

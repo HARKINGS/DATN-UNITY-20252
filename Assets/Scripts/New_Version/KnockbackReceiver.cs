@@ -10,20 +10,24 @@ public class KnockbackReceiver : MonoBehaviour, IKnockbackable
         rb = GetComponent<Rigidbody2D>();
     }
 
-    public void ApplyKnockback(Vector2 direction, float force, float duration)
+    public void ApplyKnockback(Transform knockbackEntityTransform, float knockbackForce, float knockbackTime, float stunTime)
     {
-        StartCoroutine(KnockbackRoutine(direction, force, duration));
+        StartCoroutine(KnockbackRoutine(knockbackEntityTransform, knockbackForce, knockbackTime, stunTime));
     }
 
     private IEnumerator KnockbackRoutine(
-        Vector2 direction,
-        float force,
-        float duration)
+        Transform entity,
+        float knockbackForce,
+        float knockbackTime,
+        float stunTime)
     {
-        rb.linearVelocity = direction * force;
+        Debug.Log(knockbackTime + " " + knockbackForce + " " + stunTime);
 
-        yield return new WaitForSeconds(duration);
-
+        Vector2 direction = (transform.position - entity.position).normalized;
+        rb.linearVelocity = direction * knockbackForce;
+        yield return new WaitForSeconds(knockbackTime);
         rb.linearVelocity = Vector2.zero;
+        yield return new WaitForSeconds(stunTime);
+        
     }
 }

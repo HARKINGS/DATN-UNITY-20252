@@ -2,9 +2,8 @@ using UnityEngine;
 
 public class BossAOESkill : SkillBase
 {
-    public override void Execute(DamageData damageData)
+    public override void ApplyEffect()
     {
-        base.Execute(damageData);
-        Debug.Log("AOE Attack!");
+        throw new System.NotImplementedException();
     }
 }

@@ -1,14 +1,22 @@
+using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class MeleeAttackSkill : MonoBehaviour, ISkill
+public class MeleeAttackSkill : SkillBase
 {
     [SerializeField] private Transform attackPoint;
-    [SerializeField] private float attackRange;
     [SerializeField] private LayerMask targetLayer;
 
-    public void Execute(DamageData damageData)
+    public override void Execute(DamageData damageData)
     {
+        damageData.Damage = damage;
+        base.Execute(damageData);
+        animator.PlayAttack();
+    }
+
+    public override void ApplyEffect()
+    {
+        Debug.Log("Melee Attack!");
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             attackPoint.position,
             attackRange,
@@ -17,18 +25,19 @@ public class MeleeAttackSkill : MonoBehaviour, ISkill
 
         foreach (Collider2D hit in hits)
         {
-            hit.GetComponent<IHealth>().ChangeHealth(damageData);
+            hit.GetComponent<IHealth>().ChangeHealth(currentDamageData);
             hit.GetComponent<IKnockbackable>().ApplyKnockback(
-                    damageData.HitDirection,
-                    damageData.KnockBackForce,
-                    damageData.KnockBackDuration);
+                    transform,
+                    currentDamageData.KnockBackForce,
+                    currentDamageData.KnockBackTime,
+                    currentDamageData.KnockBackDuration);
         }
     }
 
     private void OnDrawGizmosSelected()
     {
+        if (attackPoint == null) return;
         Gizmos.color = Color.red;
-
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
 }

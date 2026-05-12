@@ -1,5 +1,6 @@
 public interface ISkill
 {
-    //bool CanUse();
+    bool CanUse();
     void Execute(DamageData damageData);
+    //void Execute(SkillContext context);
 }
