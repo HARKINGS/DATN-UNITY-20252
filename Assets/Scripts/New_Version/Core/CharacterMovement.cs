@@ -1,6 +1,4 @@
-using UnityEditor.Tilemaps;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class CharacterMovement : MonoBehaviour, IMovable
 {
@@ -10,13 +8,10 @@ public class CharacterMovement : MonoBehaviour, IMovable
     private Vector2 moveDirection;
     private bool isFlipped = false;
 
-    //public InputAction MoveAction;
-
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<CharacterAnimation>();
-        //MoveAction.Enable();
     }
 
     public void Move(Vector2 move)

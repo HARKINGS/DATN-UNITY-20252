@@ -1,14 +1,21 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class CharacterHealth : MonoBehaviour, IHealth
 {
+    public Transform hitPoint;
     [SerializeField] private CharacterStats stats;
-    [SerializeField] private int CurrentHealth;
+    private int CurrentHealth;
 
     public event Action<int> OnHealthChanged;
     public event Action OnDeath;
     public event Action OnHurt;
+
+    public int GetCurrentHealth()
+    {
+        return CurrentHealth;
+    }    
 
     private void Awake()
     {
@@ -26,12 +33,20 @@ public class CharacterHealth : MonoBehaviour, IHealth
             CurrentHealth = stats.MaxHealth;
 
         OnHealthChanged?.Invoke(CurrentHealth);
-        OnHurt?.Invoke();
 
-        if (CurrentHealth <= 0)
-        {
-            OnDeath?.Invoke();
-            gameObject.SetActive(false);
-        }
+        if (CurrentHealth > 0) OnHurt?.Invoke();
+        else OnDeath?.Invoke();
     }
+
+    public void Heal(DamageData damageData)
+    {
+        Debug.Log("Heal Health: " + damageData.Damage);
+        CurrentHealth += damageData.Damage;
+        Debug.Log(CurrentHealth);
+
+        if (CurrentHealth > stats.MaxHealth)
+            CurrentHealth = stats.MaxHealth;
+
+        OnHealthChanged?.Invoke(CurrentHealth);
+    }    
 }

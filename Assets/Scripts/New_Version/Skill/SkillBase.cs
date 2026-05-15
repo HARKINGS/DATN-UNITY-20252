@@ -4,11 +4,12 @@ using UnityEngine.UI;
 public abstract class SkillBase : MonoBehaviour, ISkill
 {
     [field: SerializeField] public SkillEnum SkillType { get; private set; }
-
+    
     [Header("Skill Stats")]
     [SerializeField] protected int damage;
     [SerializeField] protected float coolDown;
     [SerializeField] protected float attackRange;
+    [SerializeField] protected LayerMask targetLayer;
 
     protected DamageData currentDamageData;
     protected CharacterAnimation animator;
@@ -18,6 +19,8 @@ public abstract class SkillBase : MonoBehaviour, ISkill
     protected virtual void Awake()
     {
         animator = GetComponent<CharacterAnimation>();
+        animator.SetCurrentSkill(this);
+        Debug.Log(SkillType);
     }
 
     public virtual bool CanUse()
@@ -28,12 +31,9 @@ public abstract class SkillBase : MonoBehaviour, ISkill
     public virtual void Execute(DamageData damageData)
     {
         if (!CanUse()) return;
-
+        Debug.Log("Skill Type is: " + SkillType);
         currentDamageData = damageData;
-
         lastUseTime = Time.time;
-
-        //animator.PlaySkill(this, animationTrigger);
     }
 
     public abstract void ApplyEffect();

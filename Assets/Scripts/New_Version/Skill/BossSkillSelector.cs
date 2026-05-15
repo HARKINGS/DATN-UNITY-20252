@@ -14,10 +14,10 @@ public class BossSkillSelector : MonoBehaviour
             //    return skills.Find(s => s is CounterSkill);
 
             case BossBehaviorType.AOE:
-                return skills.Find(s => s is BossAOESkill);
+                return skills.Find(s => s is MeleeAttackSkill);
 
             default:
-                return skills.Find(s => s is BossAOESkill);
+                return skills.Find(s => s is MeleeAttackSkill);
         }
     }
 }

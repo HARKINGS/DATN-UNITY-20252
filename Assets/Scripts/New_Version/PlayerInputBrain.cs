@@ -5,7 +5,8 @@ public class PlayerInputBrain : MonoBehaviour
 {
     [SerializeField] private SkillCaster skillCaster;
     [SerializeField] private CharacterMovement movement;
-    //[SerializeField] private CharacterCombat combat;
+
+    //private CharacterState characterState;
 
     [Header("Input")]
     public InputAction MoveAction;
@@ -23,12 +24,16 @@ public class PlayerInputBrain : MonoBehaviour
     {
         MoveAction.Enable();
         AttackAction.Enable();
+        AOEAction.Enable();
+        HealAction.Enable();
     }
 
     private void OnDisable()
     {
         MoveAction.Disable();
         AttackAction.Disable();
+        AOEAction.Disable();
+        HealAction.Disable();
     }
 
     private void Update()

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class CharacterAnimation : MonoBehaviour
@@ -12,14 +13,63 @@ public class CharacterAnimation : MonoBehaviour
         health = GetComponent<CharacterHealth>();
     }
 
-    public void PlaySkill(
-        SkillBase skill,
-        string trigger)
+    private void OnEnable()
+    {
+        health.OnHurt += PlayHurt;
+        health.OnDeath += PlayDead;
+    }
+
+    private void OnDisable()
+    {
+        health.OnHurt -= PlayHurt;
+        health.OnDeath -= PlayDead;
+    }
+
+    private void PlayHurt()
+    {
+        StartCoroutine(HurtEffectRoutine(0.25f));
+    }
+
+    IEnumerator HurtEffectRoutine(float hurtTime)
+    {
+        GetComponent<CharacterMovement>().enabled = false;
+        animator.SetBool("isHurt", true);
+        yield return new WaitForSeconds(hurtTime);
+        animator.SetBool("isHurt", false);
+        GetComponent<CharacterMovement>().enabled = true;
+    }
+
+    private void PlayDead()
+    {
+        StartCoroutine(DeathRoutine(1.5f));
+    }
+
+    IEnumerator DeathRoutine(float deadTime)
+    {
+        animator.SetBool("isDead", true);
+
+        // Vô hiệu hóa các script điều khiển và va chạm để tránh lỗi logic khi đang chết
+        GetComponent<CharacterMovement>().enabled = false;
+
+        // Đợi thời gian anim chết chạy (ví dụ 2 giây)
+        yield return new WaitForSeconds(deadTime);
+
+        // gameObject.SetActive(false);
+        // Hoặc
+        Destroy(gameObject);
+    }
+
+    public void PlaySkill(SkillBase skill, string trigger)
     {
         currentSkill = skill;
+        Debug.Log(trigger);
 
-        animator.ResetTrigger(trigger);
-        animator.SetTrigger(trigger);
+        animator.SetBool(trigger, true);
+    }
+
+    public void SetCurrentSkill(SkillBase skill)
+    {
+        currentSkill = skill;
     }
 
     // Animation Event
@@ -41,13 +91,13 @@ public class CharacterAnimation : MonoBehaviour
         animator.SetFloat("vertical", Mathf.Abs(move.y));
     }
 
-    public void PlayAttack()
-    {
-        animator.SetBool("isAttack", true);
-    }
-
     public void FinishAttack()
     {
         animator.SetBool("isAttack", false);
-    }    
+    }
+
+    public void FinishCast()
+    {
+        animator.SetBool("isCasting", false);
+    }
 }

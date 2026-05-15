@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Enemy
   - EnemyDetection
+  - ObjectCenter
   layers:
   - Default
   - TransparentFX
@@ -16,7 +17,7 @@ TagManager:
   - Player
   - Enemy
   - EnemyDetection
-  - 
+  - Center
   - 
   - 
   - 
@@ -51,3 +52,4 @@ TagManager:
     locked: 0
   m_RenderingLayers:
   - Default
+  m_MigratedRenderPipelines: []

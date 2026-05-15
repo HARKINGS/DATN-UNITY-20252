@@ -12,6 +12,8 @@ public class KnockbackReceiver : MonoBehaviour, IKnockbackable
 
     public void ApplyKnockback(Transform knockbackEntityTransform, float knockbackForce, float knockbackTime, float stunTime)
     {
+        Debug.Log("Knockback Apply!");
+        if (!gameObject.activeInHierarchy) return;
         StartCoroutine(KnockbackRoutine(knockbackEntityTransform, knockbackForce, knockbackTime, stunTime));
     }
 

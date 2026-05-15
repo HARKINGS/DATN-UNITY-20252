@@ -21,7 +21,8 @@ public class SkillCaster : MonoBehaviour
     {
         if (!skillMap.ContainsKey(type))
             return;
-        
+
+        Debug.Log(type);
         SkillBase skill = skillMap[type];
 
         if(!skill.CanUse()) return;

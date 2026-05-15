@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6677640975565240740
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9127472987407457607}
+  m_Layer: 9
+  m_Name: Center
+  m_TagString: ObjectCenter
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9127472987407457607
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6677640975565240740}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.05, y: -0.79, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5993404997282322714}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7763396919434707196
 GameObject:
   m_ObjectHideFlags: 0
@@ -48,9 +79,11 @@ GameObject:
   - component: {fileID: 9174592276323342719}
   - component: {fileID: 6026670776407718254}
   - component: {fileID: 2027357113735150615}
-  - component: {fileID: 9127267591403228726}
-  - component: {fileID: 1393984197682348165}
   - component: {fileID: 6328058971836893993}
+  - component: {fileID: 1393984197682348165}
+  - component: {fileID: 9127267591403228726}
+  - component: {fileID: 1529882942201467727}
+  - component: {fileID: 8194626127125471053}
   m_Layer: 6
   m_Name: Player_new
   m_TagString: Player
@@ -72,6 +105,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1125020322186803458}
+  - {fileID: 9127472987407457607}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &3545395191529645972
@@ -244,12 +278,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8277baa18bc5f5448808f1771b4c007, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
+  hitPoint: {fileID: 9127472987407457607}
   stats:
     MaxHealth: 5
     MoveSpeed: 5
-    KnockbackForce: 5
+    KnockbackTime: 1
+    KnockbackForce: 50
     KnockbackDuration: 0.2
-  CurrentHealth: 5
 --- !u!114 &6026670776407718254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,7 +412,15 @@ MonoBehaviour:
     m_Id: 638dc229-9491-410d-af8a-08b078ee4fda
     m_Processors: 
     m_Interactions: 
-    m_SingletonActionBindings: []
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: a06604fd-5953-44e0-98fd-23a2700accc6
+      m_Path: <Keyboard>/l
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Heal
+      m_Flags: 0
     m_Flags: 0
   AOEAction:
     m_Name: AOE
@@ -386,7 +429,15 @@ MonoBehaviour:
     m_Id: 5791ff11-22d6-4c6c-aa12-a430844f4702
     m_Processors: 
     m_Interactions: 
-    m_SingletonActionBindings: []
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: e4c64e40-fba6-4b59-bff3-c9b426a9c7b3
+      m_Path: <Keyboard>/k
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: AOE
+      m_Flags: 0
     m_Flags: 0
 --- !u!114 &2027357113735150615
 MonoBehaviour:
@@ -400,6 +451,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 854d7e35a7befee448db5aa71224fa0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterMovement
+--- !u!114 &6328058971836893993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8623990613068584448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d29bb1b3aa93c4f4da4d385db77826a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::KnockbackReceiver
+--- !u!114 &1393984197682348165
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8623990613068584448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9acaef6b7b41bf845ad312659e316350, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SkillCaster
+  skills:
+  - {fileID: 9127267591403228726}
+  - {fileID: 1529882942201467727}
+  - {fileID: 8194626127125471053}
+  stats:
+    MaxHealth: 5
+    MoveSpeed: 5
+    KnockbackTime: 0.2
+    KnockbackForce: 30
+    KnockbackDuration: 0.2
 --- !u!114 &9127267591403228726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -416,11 +501,11 @@ MonoBehaviour:
   damage: 1
   coolDown: 0.5
   attackRange: 0.8
-  attackPoint: {fileID: 1125020322186803458}
   targetLayer:
     serializedVersion: 2
     m_Bits: 128
---- !u!114 &1393984197682348165
+  attackPoint: {fileID: 1125020322186803458}
+--- !u!114 &1529882942201467727
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -429,17 +514,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 8623990613068584448}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9acaef6b7b41bf845ad312659e316350, type: 3}
+  m_Script: {fileID: 11500000, guid: 800f8a20d15a2574ab77f2e295e9cf3a, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SkillCaster
-  skills:
-  - {fileID: 9127267591403228726}
-  stats:
-    MaxHealth: 5
-    MoveSpeed: 5
-    KnockbackForce: 5
-    KnockbackDuration: 0.2
---- !u!114 &6328058971836893993
+  m_EditorClassIdentifier: Assembly-CSharp::AOELightingSkill
+  <SkillType>k__BackingField: 2
+  damage: 2
+  coolDown: 3
+  attackRange: 5.5
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  sparkFXPrefab: {fileID: 4524996498095965528, guid: 85440b87e7e34de4a8dca212ff860799, type: 3}
+  borderLightFXPrefab: {fileID: 121690578996982696, guid: 6d4d86babb142fe4db3c63750760d8f4, type: 3}
+--- !u!114 &8194626127125471053
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -448,6 +535,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 8623990613068584448}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d29bb1b3aa93c4f4da4d385db77826a1, type: 3}
+  m_Script: {fileID: 11500000, guid: 92699e3f27b22c1468ebf32262e9d2e4, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::KnockbackReceiver
+  m_EditorClassIdentifier: Assembly-CSharp::HealSkill
+  <SkillType>k__BackingField: 3
+  damage: -10
+  coolDown: 10
+  attackRange: 0
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  healFXPrefab: {fileID: 2791167030859915096, guid: c8e5180b932f71d4789286e96cb8b3d0, type: 3}
