@@ -9,7 +9,7 @@ public class CharacterStats
     //public int Damage = 10;
     //public float AttackRange = 2f;
 
-    public float KnockbackTime = 2f;
-    public float KnockbackForce = 5f;
-    public float KnockbackDuration = 0.2f;
+    public float EffectTime = 2f;
+    public float EffectForce = 5f;
+    public float EffectDuration = 0.2f;
 }

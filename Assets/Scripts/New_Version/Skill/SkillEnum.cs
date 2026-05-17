@@ -5,5 +5,6 @@ public enum SkillEnum
     Attack,
     Dodge,
     AOE,
-    Heal
+    Heal,
+    Dash
 }

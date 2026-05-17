@@ -5,7 +5,7 @@ using UnityEngine;
 public class CharacterHealth : MonoBehaviour, IHealth
 {
     public Transform hitPoint;
-    [SerializeField] private CharacterStats stats;
+    public CharacterStats stats;
     private int CurrentHealth;
 
     public event Action<int> OnHealthChanged;

@@ -7,6 +7,7 @@ TagManager:
   - Enemy
   - EnemyDetection
   - ObjectCenter
+  - Decoration
   layers:
   - Default
   - TransparentFX
@@ -18,8 +19,8 @@ TagManager:
   - Enemy
   - EnemyDetection
   - Center
-  - 
-  - 
+  - Wall
+  - Ground
   - 
   - 
   - 

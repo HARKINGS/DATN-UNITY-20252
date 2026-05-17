@@ -34,9 +34,9 @@ public class SkillCaster : MonoBehaviour
     {
         return new DamageData
                 {
-                    KnockBackForce = stats.KnockbackForce,
-                    KnockBackTime = stats.KnockbackTime,
-                    KnockBackDuration = stats.KnockbackDuration,
+                    EffectForce = stats.EffectForce,
+                    EffectTime = stats.EffectTime,
+                    EffectDuration = stats.EffectDuration,
                     HitDirection = transform.right,
                     Attacker = gameObject
                 };

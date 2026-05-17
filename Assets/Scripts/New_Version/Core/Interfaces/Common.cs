@@ -7,7 +7,7 @@ public interface IHealth {
 
 public interface IMovable
 {
-    void Move(Vector2 move);
+    void Move();
     void Stop();
 }
 

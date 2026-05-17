@@ -30,9 +30,9 @@ public class MeleeAttackSkill : SkillBase
             hit.GetComponent<IHealth>().ChangeHealth(currentDamageData);
             hit.GetComponent<IKnockbackable>().ApplyKnockback(
                     transform,
-                    currentDamageData.KnockBackForce,
-                    currentDamageData.KnockBackTime,
-                    currentDamageData.KnockBackDuration);
+                    currentDamageData.EffectForce,
+                    currentDamageData.EffectTime,
+                    currentDamageData.EffectDuration);
         }
     }
 
