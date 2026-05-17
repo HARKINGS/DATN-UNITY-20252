@@ -13,15 +13,15 @@ public class StatsUI : MonoBehaviour
 
     private void Start()
     {
-        if(Instance == null) Instance = this;
+        if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
         UpdateAllStats();
     }
 
-    private void Update()   
+    private void Update()
     {
-        if(Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             if (statsOpen) CloseStats();
             else OpenStats();
@@ -60,9 +60,9 @@ public class StatsUI : MonoBehaviour
 
     public void UpdateCurrentHealth()
     {
-        Debug.Log("Updating health stat in UI: " + StatsManager.Instance.currentHealth);
+        //Debug.Log("Updating health stat in UI: " + StatsManager.Instance.currentHealth);
         statsSlot[2].GetComponentInChildren<TMP_Text>().text = "Health: " + StatsManager.Instance.currentHealth;
-    }   
+    }
 
     public void UpdateAllStats()
     {

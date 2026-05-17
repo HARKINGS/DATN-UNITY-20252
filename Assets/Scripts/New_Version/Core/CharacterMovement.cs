@@ -22,7 +22,6 @@ public class CharacterMovement : MonoBehaviour, IMovable
     public void Move()
     {
         moveDirection = MoveAction.ReadValue<Vector2>();
-        Debug.Log(moveDirection.x + ", " + moveDirection.y);
     }
 
     public void Stop()

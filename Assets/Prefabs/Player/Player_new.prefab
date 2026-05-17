@@ -80,6 +80,7 @@ GameObject:
   - component: {fileID: 6026670776407718254}
   - component: {fileID: 2027357113735150615}
   - component: {fileID: 6328058971836893993}
+  - component: {fileID: 5376934152768847069}
   - component: {fileID: 1393984197682348165}
   - component: {fileID: 9127267591403228726}
   - component: {fileID: 1529882942201467727}
@@ -283,7 +284,7 @@ MonoBehaviour:
   stats:
     MaxHealth: 10
     MoveSpeed: 10
-    EffectTime: 1
+    EffectTime: 0.1
     EffectForce: 50
     EffectDuration: 0.2
 --- !u!114 &6026670776407718254
@@ -481,6 +482,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d29bb1b3aa93c4f4da4d385db77826a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::KnockbackReceiver
+--- !u!114 &5376934152768847069
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8623990613068584448}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49d2d99426ddbb14dbbeb81269a899b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthBarUI
+  health: {fileID: 9174592276323342719}
+  healthText: {fileID: 0}
+  healthTextAnim: {fileID: 0}
+  hpRect: {fileID: 0}
 --- !u!114 &1393984197682348165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -498,12 +515,6 @@ MonoBehaviour:
   - {fileID: 1529882942201467727}
   - {fileID: 8194626127125471053}
   - {fileID: 4803693844236968844}
-  stats:
-    MaxHealth: 5
-    MoveSpeed: 5
-    EffectTime: 2
-    EffectForce: 5
-    EffectDuration: 0.2
 --- !u!114 &9127267591403228726
 MonoBehaviour:
   m_ObjectHideFlags: 0

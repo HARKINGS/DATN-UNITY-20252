@@ -23,7 +23,7 @@ public class KnockbackReceiver : MonoBehaviour, IKnockbackable
         float knockbackTime,
         float stunTime)
     {
-        Debug.Log(knockbackTime + " " + knockbackForce + " " + stunTime);
+        Debug.Log("Knockback Data is: " + knockbackTime + " " + knockbackForce + " " + stunTime);
 
         Vector2 direction = (transform.position - entity.position).normalized;
         rb.linearVelocity = direction * knockbackForce;

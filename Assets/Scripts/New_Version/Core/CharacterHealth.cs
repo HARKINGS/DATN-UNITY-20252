@@ -34,8 +34,15 @@ public class CharacterHealth : MonoBehaviour, IHealth
 
         OnHealthChanged?.Invoke(CurrentHealth);
 
-        if (CurrentHealth > 0) OnHurt?.Invoke();
-        else OnDeath?.Invoke();
+        if (CurrentHealth > 0)
+        {
+            OnHurt?.Invoke();
+        }
+        else
+        {
+            CurrentHealth = 0;
+            OnDeath?.Invoke();
+        }
     }
 
     public void Heal(DamageData damageData)

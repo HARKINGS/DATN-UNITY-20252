@@ -5,11 +5,15 @@ public class SkillCaster : MonoBehaviour
 {
     [SerializeField] private List<SkillBase> skills;
     private Dictionary<SkillEnum, SkillBase> skillMap;
-    [Header("Combat Stats")]
-    [SerializeField] private CharacterStats stats;
+    
+    private CharacterHealth health;
+    private CharacterStats stats;
 
     private void Awake()
     {
+        health = GetComponent<CharacterHealth>();
+        stats = health.stats;
+
         skillMap = new Dictionary<SkillEnum, SkillBase>();
 
         foreach (SkillBase skill in skills)
