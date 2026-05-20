@@ -2,8 +2,10 @@ using UnityEngine;
 
 public enum BossBehaviorType 
 {
-    Counter,
+    Idle,
+    Attack,
+    Casting,
     AOE,
-    Health,
+    Heal,
     Dodge
 }

@@ -56,4 +56,14 @@ public class AOELightingSkill : SkillBase
             }
         }
     }
+
+    public override float Evaluate(AIContext context)
+    {
+        float score = 10;
+
+        if (context.PlayerDefense > 0.5f)
+            score += 60;
+
+        return score;
+    }
 }

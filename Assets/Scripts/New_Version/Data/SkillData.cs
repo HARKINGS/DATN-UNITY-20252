@@ -10,6 +10,4 @@ public class SkillData : ScriptableObject
     public int damage;
 
     public float range;
-
-    public AnimationClip animationClip;
 }

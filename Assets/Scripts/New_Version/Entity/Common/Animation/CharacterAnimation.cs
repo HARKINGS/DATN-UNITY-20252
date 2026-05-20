@@ -59,6 +59,11 @@ public class CharacterAnimation : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public bool CheckCast()
+    {
+        return animator.GetBool("isCasting");
+    }
+
     public void PlaySkill(SkillBase skill, string trigger)
     {
         currentSkill = skill;
@@ -89,6 +94,11 @@ public class CharacterAnimation : MonoBehaviour
     {
         animator.SetFloat("horizontal", Mathf.Abs(move.x));
         animator.SetFloat("vertical", Mathf.Abs(move.y));
+
+        if (move.x == 0 && move.y == 0)
+            animator.SetBool("isIdle", true);
+        else
+            animator.SetBool("isIdle", false);
     }
 
     public void FinishAttack()

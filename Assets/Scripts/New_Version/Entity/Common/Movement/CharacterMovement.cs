@@ -9,19 +9,29 @@ public class CharacterMovement : MonoBehaviour, IMovable
 
     private Vector2 moveDirection;
     private bool isFlipped = false;
-    public InputAction MoveAction;
+    //public InputAction MoveAction;
+
+    public CharacterAnimation GetAnimation()
+    {
+        return this.anim; 
+    }   
+    
+    public CharacterHealth GetHealth()
+    {
+        return this.health;
+    }
 
     private void Awake()
     {
-        MoveAction.Enable();
+        //MoveAction.Enable();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<CharacterAnimation>();
         health = GetComponent<CharacterHealth>();
     }
 
-    public void Move()
+    public void Move(Vector2 moveDirection)
     {
-        moveDirection = MoveAction.ReadValue<Vector2>();
+        this.moveDirection = moveDirection;
     }
 
     public void Stop()

@@ -9,6 +9,8 @@ public class SkillCaster : MonoBehaviour
     private CharacterHealth health;
     private CharacterStats stats;
 
+    public List<SkillBase> GetSkills() { return skills; }
+
     private void Awake()
     {
         health = GetComponent<CharacterHealth>();
@@ -23,17 +25,21 @@ public class SkillCaster : MonoBehaviour
     }
     public void Execute(SkillEnum type)
     {
+        Debug.Log(type);
         if (!skillMap.ContainsKey(type))
             return;
 
         Debug.Log(type);
         SkillBase skill = skillMap[type];
 
-        if(!skill.CanUse()) return;
+        if (!skill.CanUse()) return;
 
-        skill.Execute(BuildContext());
-    }  
-    
+        DamageData damageData = BuildContext();
+
+        skill.Execute(damageData);
+    }
+
+
     private DamageData BuildContext()
     {
         return new DamageData

@@ -39,4 +39,12 @@ public class HealSkill : SkillBase
             }
         }
     }
+
+    public override float Evaluate(AIContext context)
+    {
+        if (context.BossHPPercent < 0.3f)
+            return 100;
+
+        return 0;
+    }
 }

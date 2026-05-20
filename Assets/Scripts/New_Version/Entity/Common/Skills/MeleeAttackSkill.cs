@@ -42,4 +42,12 @@ public class MeleeAttackSkill : SkillBase
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(attackPoint.position, attackRange);
     }
+
+    public override float Evaluate(AIContext context)
+    {
+        if (context.DistanceToPlayer < 2f)
+            return 90;
+
+        return 0;
+    }
 }

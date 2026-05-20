@@ -12,6 +12,11 @@ public class CharacterHealth : MonoBehaviour, IHealth
     public event Action OnDeath;
     public event Action OnHurt;
 
+    public float GetHealthPercent()
+    {
+        return (float)CurrentHealth / stats.MaxHealth;
+    }
+
     public int GetCurrentHealth()
     {
         return CurrentHealth;
@@ -25,9 +30,9 @@ public class CharacterHealth : MonoBehaviour, IHealth
 
     public void ChangeHealth(DamageData damageData)
     {
-        Debug.Log("Change Health: " + damageData.Damage);
+        //Debug.Log("Change Health: " + damageData.Damage);
         CurrentHealth -= damageData.Damage;
-        Debug.Log(CurrentHealth);
+        //Debug.Log(CurrentHealth);
 
         if (CurrentHealth > stats.MaxHealth)
             CurrentHealth = stats.MaxHealth;
@@ -47,9 +52,9 @@ public class CharacterHealth : MonoBehaviour, IHealth
 
     public void Heal(DamageData damageData)
     {
-        Debug.Log("Heal Health: " + damageData.Damage);
+        //Debug.Log("Heal Health: " + damageData.Damage);
         CurrentHealth += damageData.Damage;
-        Debug.Log(CurrentHealth);
+        //Debug.Log(CurrentHealth);
 
         if (CurrentHealth > stats.MaxHealth)
             CurrentHealth = stats.MaxHealth;

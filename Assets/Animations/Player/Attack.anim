@@ -26,9 +26,9 @@ AnimationClip:
       value: {fileID: -4373791461941290170, guid: 38e793ca45c86d243805990a2b41dfdc, type: 3}
     - time: 0.15
       value: {fileID: -1960856766627476044, guid: 38e793ca45c86d243805990a2b41dfdc, type: 3}
-    - time: 0.23333333
+    - time: 0.21666667
       value: {fileID: -6408724625276006510, guid: 38e793ca45c86d243805990a2b41dfdc, type: 3}
-    - time: 0.26666668
+    - time: 0.28333333
       value: {fileID: 2437092350471092710, guid: 38e793ca45c86d243805990a2b41dfdc, type: 3}
     - time: 0.35
       value: {fileID: 2959908855591204936, guid: 38e793ca45c86d243805990a2b41dfdc, type: 3}
@@ -91,7 +91,7 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 0.23333333
+  - time: 0.21666667
     functionName: AnimationEvent_ApplySkill
     data: 
     objectReferenceParameter: {fileID: 0}

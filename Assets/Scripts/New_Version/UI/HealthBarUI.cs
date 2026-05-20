@@ -31,7 +31,7 @@ public class HealthBarUI : MonoBehaviour
 
     private void UpdateUI(int current)
     {
-        Debug.Log("current HP is: " + current);
+        //Debug.Log("current HP is: " + current);
         healthText.text = current + "/" + health.stats.MaxHealth;
         float hpPercent = 1.0f * current / health.stats.MaxHealth;
         float newWidth = maxHealthWidth * hpPercent;

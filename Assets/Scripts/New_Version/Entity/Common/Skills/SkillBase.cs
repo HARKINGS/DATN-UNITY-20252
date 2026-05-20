@@ -1,10 +1,10 @@
+using System;
 using UnityEngine;
-using UnityEngine.UI;
 
 public abstract class SkillBase : MonoBehaviour, ISkill
 {
     [field: SerializeField] public SkillEnum SkillType { get; private set; }
-    
+
     [Header("Skill Stats")]
     [SerializeField] protected int damage;
     [SerializeField] protected float coolDown;
@@ -16,25 +16,33 @@ public abstract class SkillBase : MonoBehaviour, ISkill
     protected SkillData skillData;
     protected float lastUseTime;
 
+    internal GameObject GetAttacker()
+    {
+        return currentDamageData.Attacker;
+    }    
+
     protected virtual void Awake()
     {
         animator = GetComponent<CharacterAnimation>();
         animator.SetCurrentSkill(this);
-        Debug.Log(SkillType);
+        //Debug.Log(SkillType);
     }
 
     public virtual bool CanUse()
     {
-        return Time.time >= lastUseTime + coolDown;
+        return (Time.time >= lastUseTime + coolDown);
     }
 
     public virtual void Execute(DamageData damageData)
     {
         if (!CanUse()) return;
-        Debug.Log("Skill Type is: " + SkillType);
+        //Debug.Log("Skill Type is: " + SkillType);
         currentDamageData = damageData;
         lastUseTime = Time.time;
+        CombatEvents.OnPlayerSkillUsed?.Invoke(this);
     }
+
+    public abstract float Evaluate(AIContext context);
 
     public abstract void ApplyEffect();
 }

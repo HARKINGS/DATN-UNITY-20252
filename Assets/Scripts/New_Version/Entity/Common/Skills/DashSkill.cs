@@ -61,4 +61,11 @@ public class DashSkill : SkillBase
 
         playerTransform.position = destination;
     }
+
+    public override float Evaluate(AIContext context)
+    {
+        if(context.DistanceToPlayer > 5f)
+            return 80; // High priority if player is far and aggressive
+        return 0;
+    }
 }

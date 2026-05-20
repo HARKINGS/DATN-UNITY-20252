@@ -7,6 +7,7 @@ public class PlayerInputBrain : MonoBehaviour
     [SerializeField] private CharacterMovement movement;
 
     [Header("Input")]
+    public InputAction MoveAction;
     public InputAction AttackAction;
     public InputAction HealAction;
     public InputAction AOEAction;
@@ -20,6 +21,7 @@ public class PlayerInputBrain : MonoBehaviour
 
     private void OnEnable()
     {
+        MoveAction.Enable();
         AttackAction.Enable();
         AOEAction.Enable();
         HealAction.Enable();
@@ -28,6 +30,7 @@ public class PlayerInputBrain : MonoBehaviour
 
     private void OnDisable()
     {
+        MoveAction.Disable();
         AttackAction.Disable();
         AOEAction.Disable();
         HealAction.Disable();
@@ -37,7 +40,10 @@ public class PlayerInputBrain : MonoBehaviour
     private void Update()
     {
         if (AttackAction.triggered)
+        {
+            Debug.Log("Attack Active");
             skillCaster.Execute(SkillEnum.Attack);
+        }
         else if (HealAction.triggered)
             skillCaster.Execute(SkillEnum.Heal);
         else if (AOEAction.triggered)
@@ -51,6 +57,6 @@ public class PlayerInputBrain : MonoBehaviour
 
     private void FixedUpdate()
     {
-        movement.Move();
+        movement.Move(MoveAction.ReadValue<Vector2>());
     }
 }
