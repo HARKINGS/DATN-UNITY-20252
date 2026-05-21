@@ -5,16 +5,13 @@ public class SkillCaster : MonoBehaviour
 {
     [SerializeField] private List<SkillBase> skills;
     private Dictionary<SkillEnum, SkillBase> skillMap;
-    
-    private CharacterHealth health;
     private CharacterStats stats;
 
     public List<SkillBase> GetSkills() { return skills; }
 
     private void Awake()
     {
-        health = GetComponent<CharacterHealth>();
-        stats = health.stats;
+        stats = GetComponent<CharacterStats>();
 
         skillMap = new Dictionary<SkillEnum, SkillBase>();
 

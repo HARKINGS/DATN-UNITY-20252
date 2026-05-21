@@ -22,6 +22,7 @@ public class AOELightingSkill : SkillBase
     {
         damageData.Damage = damage;
         base.Execute(damageData);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Casting);
         animator.PlaySkill(this, "isCasting");
     }
 
@@ -61,7 +62,9 @@ public class AOELightingSkill : SkillBase
     {
         float score = 10;
 
-        if (context.PlayerDefense > 0.5f)
+        //Debug.Log("AOE Evaluate: Distance to Player = " + context.DistanceToPlayer);
+
+        if (context.DistanceToPlayer <= 5.5f && base.CanUse())
             score += 60;
 
         return score;

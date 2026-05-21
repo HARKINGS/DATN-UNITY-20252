@@ -4,8 +4,6 @@ public class CharacterAnalyzer : MonoBehaviour
 {
     [SerializeField] private BossMemory bossMemory;
 
-    private float combatTimer;
-
     private void Awake()
     {
         bossMemory = GetComponent<BossMemory>();
@@ -23,20 +21,23 @@ public class CharacterAnalyzer : MonoBehaviour
 
     private void AnalyzeSkill(SkillBase skill)
     {   
-        Debug.Log("Analyzing skill: " + skill.SkillType);
-        Debug.Log("Attacker is: " + skill.GetAttacker().tag);
+        //Debug.Log("Analyzing skill: " + skill.SkillType);
+        //Debug.Log("Attacker: " + skill.GetAttacker().name + " with tag: " + skill.GetAttacker().tag);
 
-        switch (skill.SkillType)
+        if (skill.GetAttacker().tag == "Player")
         {
-            case SkillEnum.Attack: bossMemory.RegisterAttack(); break;
-            case SkillEnum.AOE: bossMemory.RegisterAOE(); break;
-            case SkillEnum.Dash: bossMemory.RegisterDash(); break;
-            case SkillEnum.Heal: bossMemory.RegisterHeal(); break;
-        }
+            switch (skill.SkillType)
+            {
+                case SkillEnum.Attack: bossMemory.RegisterAttack(); break;
+                case SkillEnum.AOE: bossMemory.RegisterAOE(); break;
+                case SkillEnum.Dash: bossMemory.RegisterDash(); break;
+                case SkillEnum.Heal: bossMemory.RegisterHeal(); break;
+            }
 
-        Debug.Log($"Melee: {bossMemory.PlayerAttackCount}, " +
-            $"AOE: {bossMemory.PlayerAOECount}, " +
-            $"Dash: {bossMemory.PlayerDashCount}, " +
-            $"Heal: {bossMemory.PlayerHealCount}");
+            //Debug.Log($"Melee: {bossMemory.PlayerAttackCount}, " +
+            //    $"AOE: {bossMemory.PlayerAOECount}, " +
+            //    $"Dash: {bossMemory.PlayerDashCount}, " +
+            //    $"Heal: {bossMemory.PlayerHealCount}");
+        }
     }
 }

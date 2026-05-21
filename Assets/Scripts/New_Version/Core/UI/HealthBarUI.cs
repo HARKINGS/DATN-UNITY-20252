@@ -32,8 +32,8 @@ public class HealthBarUI : MonoBehaviour
     private void UpdateUI(int current)
     {
         //Debug.Log("current HP is: " + current);
-        healthText.text = current + "/" + health.stats.MaxHealth;
-        float hpPercent = 1.0f * current / health.stats.MaxHealth;
+        healthText.text = current + "/" + health.GetComponent<CharacterStats>().MaxHealth;
+        float hpPercent = 1.0f * current / health.GetComponent<CharacterStats>().MaxHealth;
         float newWidth = maxHealthWidth * hpPercent;
         hpRect.sizeDelta = new Vector2(newWidth, hpRect.sizeDelta.y);
     }

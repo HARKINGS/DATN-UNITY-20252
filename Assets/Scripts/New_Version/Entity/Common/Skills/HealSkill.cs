@@ -20,6 +20,7 @@ public class HealSkill : SkillBase
     {
         damageData.Damage = damage;
         base.Execute(damageData);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Casting);
         animator.PlaySkill(this, "isCasting");
     }
 
@@ -42,7 +43,7 @@ public class HealSkill : SkillBase
 
     public override float Evaluate(AIContext context)
     {
-        if (context.BossHPPercent < 0.3f)
+        if (context.BossHPPercent < 0.3f && base.CanUse())
             return 100;
 
         return 0;

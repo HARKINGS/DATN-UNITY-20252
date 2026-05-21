@@ -12,7 +12,7 @@ public class KnockbackReceiver : MonoBehaviour, IKnockbackable
 
     public void ApplyKnockback(Transform knockbackEntityTransform, float knockbackForce, float knockbackTime, float stunTime)
     {
-        //Debug.Log("Knockback Apply!");
+        Debug.Log("Knockback Apply!");
         if (!gameObject.activeInHierarchy) return;
         StartCoroutine(KnockbackRoutine(knockbackEntityTransform, knockbackForce, knockbackTime, stunTime));
     }
@@ -23,12 +23,14 @@ public class KnockbackReceiver : MonoBehaviour, IKnockbackable
         float knockbackTime,
         float stunTime)
     {
-        //Debug.Log("Knockback Data is: " + knockbackTime + " " + knockbackForce + " " + stunTime);
+        Debug.Log("Knockback Data is: " + knockbackTime + " " + knockbackForce + " " + stunTime);
 
         Vector2 direction = (transform.position - entity.position).normalized;
         rb.linearVelocity = direction * knockbackForce;
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Hurt);
         yield return new WaitForSeconds(knockbackTime);
         rb.linearVelocity = Vector2.zero;
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Stun);
         yield return new WaitForSeconds(stunTime);
         
     }

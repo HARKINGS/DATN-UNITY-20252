@@ -5,8 +5,8 @@ using UnityEngine;
 public class CharacterHealth : MonoBehaviour, IHealth
 {
     public Transform hitPoint;
-    public CharacterStats stats;
     private int CurrentHealth;
+    private CharacterStats stats;
 
     public event Action<int> OnHealthChanged;
     public event Action OnDeath;
@@ -24,6 +24,7 @@ public class CharacterHealth : MonoBehaviour, IHealth
 
     private void Awake()
     {
+        stats = GetComponent<CharacterStats>();
         CurrentHealth = stats.MaxHealth;
         OnHealthChanged?.Invoke(CurrentHealth);
     }

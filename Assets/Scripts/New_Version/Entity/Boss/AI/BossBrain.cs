@@ -6,70 +6,79 @@ public class BossBrain : MonoBehaviour
     [SerializeField] private SkillCaster skillCaster;
     [SerializeField] private CharacterMovement movement;
     [SerializeField] private BossMemory memory;
+
     [SerializeField] private Transform Player;
+    private CharacterDetection characterDetection;
+    private Vector2 PlayerDirection;
+    private Rigidbody2D rb;
+    private CharacterStatus characterState;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        rb = GetComponent<Rigidbody2D>();
         skillCaster = GetComponent<SkillCaster>();
         movement = GetComponent<CharacterMovement>();
         memory = GetComponent<BossMemory>();
+        characterDetection = GetComponent<CharacterDetection>();
     }
 
     // Update is called once per frame
     void Update()
-    {
-        Think();   
+    {        
+        if (CheckCharacter() != null)
+        {
+            //Debug.Log("Find Player");
+            PlayerDirection = GetDirection();
+            Think();
+            movement.Move(PlayerDirection);
+        } 
+        else movement.Move(Vector2.zero);
     }
 
     private Vector2 GetDirection()
     {
-        return (Player.transform.position - transform.position).normalized;
+        return (Player.position - transform.position).normalized;
+    }
+
+    private Transform CheckCharacter()
+    {
+        Collider2D[] hits = characterDetection.DetectCharacter();
+        if (hits.Length > 0)
+            return Player = hits[0].transform;
+        return Player = null;
     }
 
     private void Think()
     {
-        //SkillBase bestSkill = null;
+        SkillBase bestSkill = null;
+        float bestScore = -1;
 
-        //float bestScore = -1;
+        List<SkillBase> skills = skillCaster.GetSkills();
+        float aggression = memory.GetAggressionLevel();
+        float defensive = memory.GetDefensiveLevel();
 
-        //List<SkillBase> skills = skillCaster.GetSkills();
+        AIContext context = new AIContext
+        (
+            (Player.position - transform.position).magnitude,
+            BossHPPercent: movement.GetHealth().GetHealthPercent(),
+            PlayerAggression: aggression,
+            PlayerDefense: defensive,
+            Player: Player
+        );
 
-        //foreach (SkillBase skill in skills)
-        //{
-        //    float score = skill.Evaluate
-        //    (
-        //        new AIContext
-        //        (
-        //            GetDirection().magnitude,
-        //            BossHPPercent: movement.GetHealth().GetHealthPercent(),
-        //            PlayerAggression: memory.GetAggressionLevel(),
-        //            PlayerDefense: memory.GetDefensiveLevel(),
-        //            Player: Player
-        //        )            
-        //    );
+        foreach (SkillBase skill in skills)
+        {
+            float score = skill.Evaluate(context);
 
-        //    if (score > bestScore)
-        //    {
-        //        bestScore = score;
-        //        bestSkill = skill;
-        //    }
-        //}
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestSkill = skill;
+            }
+        }
 
-        //float aggression = memory.GetAggressionLevel();
-        //float defensive = memory.GetDefensiveLevel();
-        //if (aggression > 0.5f)
-        //{
-        //    skillCaster.Execute(SkillEnum.Attack);
-        //}
-        //else if (defensive > 0.5f)
-        //{
-        //    Vector2 direction = GetDirection();
-        //    movement.Move(direction);
-        //}
-        //else
-        //{
-        //    skillCaster.Execute(SkillEnum.Idle);
-        //}
+        skillCaster.Execute(bestSkill.SkillType);
+        //Debug.Log("The Best Skill: " + bestSkill.SkillType);
     }
 }

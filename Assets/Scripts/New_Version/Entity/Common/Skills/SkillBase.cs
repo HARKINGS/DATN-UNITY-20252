@@ -36,7 +36,6 @@ public abstract class SkillBase : MonoBehaviour, ISkill
     public virtual void Execute(DamageData damageData)
     {
         if (!CanUse()) return;
-        //Debug.Log("Skill Type is: " + SkillType);
         currentDamageData = damageData;
         lastUseTime = Time.time;
         CombatEvents.OnPlayerSkillUsed?.Invoke(this);

@@ -13,6 +13,7 @@ public class MeleeAttackSkill : SkillBase
     {
         damageData.Damage = damage;
         base.Execute(damageData);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Attacking);
         animator.PlaySkill(this, "isAttack");
     }
 
@@ -45,9 +46,8 @@ public class MeleeAttackSkill : SkillBase
 
     public override float Evaluate(AIContext context)
     {
-        if (context.DistanceToPlayer < 2f)
+        if (context.DistanceToPlayer <= 1f && base.CanUse())
             return 90;
-
         return 0;
     }
 }

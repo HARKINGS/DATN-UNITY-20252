@@ -1,5 +1,3 @@
-using Unity.Jobs;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class DashSkill : SkillBase
@@ -31,6 +29,7 @@ public class DashSkill : SkillBase
     {
         damageData.Damage = damage;
         base.Execute(damageData);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Dashing);
         ApplyEffect();
     }
 
@@ -64,7 +63,7 @@ public class DashSkill : SkillBase
 
     public override float Evaluate(AIContext context)
     {
-        if(context.DistanceToPlayer > 5f)
+        if(context.DistanceToPlayer > 5f && base.CanUse())
             return 80; // High priority if player is far and aggressive
         return 0;
     }

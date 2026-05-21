@@ -1,15 +1,14 @@
 using UnityEngine;
 
-[System.Serializable]
-public class CharacterStats
+public class CharacterStats : MonoBehaviour
 {
-    public int MaxHealth = 100;
-    public float MoveSpeed = 5f;
+    [field: SerializeField] public int MaxHealth { get; private set; } = 100;
 
-    //public int Damage = 10;
-    //public float AttackRange = 2f;
+    [field: SerializeField] public float MoveSpeed { get; private set; } = 5f;
 
-    public float EffectTime = 2f;
-    public float EffectForce = 5f;
-    public float EffectDuration = 0.2f;
+    [field: SerializeField] public float EffectTime { get; private set; } = 2f;
+
+    [field: SerializeField] public float EffectForce { get; private set; } = 5f;
+
+    [field: SerializeField] public float EffectDuration { get; private set; } = 0.2f;
 }

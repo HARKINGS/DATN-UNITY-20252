@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class CharacterMovement : MonoBehaviour, IMovable
 {
@@ -9,7 +8,6 @@ public class CharacterMovement : MonoBehaviour, IMovable
 
     private Vector2 moveDirection;
     private bool isFlipped = false;
-    //public InputAction MoveAction;
 
     public CharacterAnimation GetAnimation()
     {
@@ -46,7 +44,7 @@ public class CharacterMovement : MonoBehaviour, IMovable
 
     private void FixedUpdate()
     {
-        Vector2 position = (Vector2)rb.position + moveDirection * health.stats.MoveSpeed * Time.deltaTime;
+        Vector2 position = (Vector2)rb.position + moveDirection * GetComponent<CharacterStats>().MoveSpeed * Time.deltaTime;
         rb.MovePosition(position);
         anim.SetMove(moveDirection);
         Flip();

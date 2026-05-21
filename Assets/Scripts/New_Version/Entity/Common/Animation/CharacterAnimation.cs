@@ -6,9 +6,11 @@ public class CharacterAnimation : MonoBehaviour
     [SerializeField] private Animator animator;
     private CharacterHealth health;
     private SkillBase currentSkill;
+    public CharacterStatus currentStatus;
 
     private void Awake()
     {
+        currentStatus = CharacterStatus.Idle;
         animator = GetComponent<Animator>();
         health = GetComponent<CharacterHealth>();
     }
@@ -53,9 +55,6 @@ public class CharacterAnimation : MonoBehaviour
 
         // Đợi thời gian anim chết chạy (ví dụ 2 giây)
         yield return new WaitForSeconds(deadTime);
-
-        // gameObject.SetActive(false);
-        // Hoặc
         Destroy(gameObject);
     }
 
@@ -96,9 +95,15 @@ public class CharacterAnimation : MonoBehaviour
         animator.SetFloat("vertical", Mathf.Abs(move.y));
 
         if (move.x == 0 && move.y == 0)
+        {
+            //animator.SetBool("isChasing", false);
             animator.SetBool("isIdle", true);
+        }
         else
+        {
             animator.SetBool("isIdle", false);
+            //animator.SetBool("isChasing", true);
+        }
     }
 
     public void FinishAttack()
@@ -109,5 +114,16 @@ public class CharacterAnimation : MonoBehaviour
     public void FinishCast()
     {
         animator.SetBool("isCasting", false);
+    }
+
+    public void ResetAnimation()
+    {
+        foreach (AnimatorControllerParameter param in animator.parameters)
+        {
+            if (param.type == AnimatorControllerParameterType.Bool)
+                animator.SetBool(param.name, false);
+            if (param.type == AnimatorControllerParameterType.Float)
+                animator.SetFloat(param.name, 0);
+        }
     }
 }

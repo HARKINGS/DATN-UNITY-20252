@@ -224,11 +224,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 55a2da126983e4f43a9d9364a18c2563, type: 3}
---- !u!4 &135741293 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 8509273788301234193, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
-  m_PrefabInstance: {fileID: 2607303960560732294}
-  m_PrefabAsset: {fileID: 0}
 --- !u!95 &397625995 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 7818362412394861087, guid: 55a2da126983e4f43a9d9364a18c2563, type: 3}
@@ -253,6 +248,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 634617026645898351, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: characterLayer.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
+    - target: {fileID: 753968845950486991, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: m_Mass
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1167618663516176533, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_Name
       value: Boss
@@ -262,9 +265,29 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1841594070883913824, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
-      propertyPath: Player
-      value: 
-      objectReference: {fileID: 135741293}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1967935974943901744, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: <MaxHealth>k__BackingField
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 1967935974943901744, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: <MoveSpeed>k__BackingField
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1967935974943901744, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: <EffectTime>k__BackingField
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1967935974943901744, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: <EffectForce>k__BackingField
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1967935974943901744, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: <EffectDuration>k__BackingField
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 4602794929443795527, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: hpRect
       value: 
@@ -277,9 +300,13 @@ PrefabInstance:
       propertyPath: healthTextAnim
       value: 
       objectReference: {fileID: 901657245}
+    - target: {fileID: 5826668043659084639, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: m_Radius
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 6920905172665878990, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.48067
+      value: -4.1
       objectReference: {fileID: 0}
     - target: {fileID: 6920905172665878990, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_LocalPosition.y
@@ -837,21 +864,25 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2583921738895166984, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
-      propertyPath: <SkillType>k__BackingField
-      value: 4
-      objectReference: {fileID: 0}
     - target: {fileID: 3071281301059090698, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
-    - target: {fileID: 4020820152025596432, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
-      propertyPath: <SkillType>k__BackingField
-      value: 1
+    - target: {fileID: 4586198605919053979, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
+      propertyPath: <MoveSpeed>k__BackingField
+      value: 10
       objectReference: {fileID: 0}
-    - target: {fileID: 4841385247915600393, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
-      propertyPath: <SkillType>k__BackingField
-      value: 3
+    - target: {fileID: 4586198605919053979, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
+      propertyPath: <EffectTime>k__BackingField
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4586198605919053979, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
+      propertyPath: <EffectForce>k__BackingField
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4586198605919053979, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
+      propertyPath: <EffectDuration>k__BackingField
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 5980630639194626448, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
       propertyPath: hpRect
@@ -865,17 +896,13 @@ PrefabInstance:
       propertyPath: healthTextAnim
       value: 
       objectReference: {fileID: 397625995}
-    - target: {fileID: 6321482385752771582, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
-      propertyPath: DashAction.m_SingletonActionBindings.Array.data[0].m_Path
-      value: <Keyboard>/semicolon
-      objectReference: {fileID: 0}
-    - target: {fileID: 6756255057406697662, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
-      propertyPath: <SkillType>k__BackingField
-      value: 5
+    - target: {fileID: 6232361307874110291, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
+      propertyPath: m_Mass
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8509273788301234193, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.23
+      value: 12.57
       objectReference: {fileID: 0}
     - target: {fileID: 8509273788301234193, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
       propertyPath: m_LocalPosition.y

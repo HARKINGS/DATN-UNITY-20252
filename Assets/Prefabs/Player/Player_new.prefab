@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 8414566884253655342}
   - component: {fileID: 6232361307874110291}
   - component: {fileID: 819752613221557755}
+  - component: {fileID: 4586198605919053979}
   - component: {fileID: 3088815472854460533}
   - component: {fileID: 2671971871058694694}
   - component: {fileID: 6321482385752771582}
@@ -55,6 +56,7 @@ GameObject:
   - component: {fileID: 4841385247915600393}
   - component: {fileID: 2583921738895166984}
   - component: {fileID: 6756255057406697662}
+  - component: {fileID: 5086611471233366663}
   m_Layer: 6
   m_Name: Player_New
   m_TagString: Player
@@ -224,6 +226,23 @@ CapsuleCollider2D:
   m_Offset: {x: -0.13189793, y: -0.7362213}
   m_Size: {x: 1.0206723, y: 2.0275574}
   m_Direction: 0
+--- !u!114 &4586198605919053979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3071281301059090698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fe88ad0030f54841867cf0b4f5d1f5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
+  <MaxHealth>k__BackingField: 20
+  <MoveSpeed>k__BackingField: 5
+  <EffectTime>k__BackingField: 2
+  <EffectForce>k__BackingField: 5
+  <EffectDuration>k__BackingField: 0.2
 --- !u!114 &3088815472854460533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237,6 +256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimator
   animator: {fileID: 0}
+  currentStatus: 0
 --- !u!114 &2671971871058694694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,12 +270,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthSystem
   hitPoint: {fileID: 7727258888712822332}
-  stats:
-    MaxHealth: 10
-    MoveSpeed: 10
-    EffectTime: 0.1
-    EffectForce: 50
-    EffectDuration: 0.2
 --- !u!114 &6321482385752771582
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -420,7 +434,7 @@ MonoBehaviour:
     m_SingletonActionBindings:
     - m_Name: 
       m_Id: 5f68df44-7b91-4770-aecf-4e6398fb9168
-      m_Path: <Mouse>/rightButton
+      m_Path: <Keyboard>/semicolon
       m_Interactions: 
       m_Processors: 
       m_Groups: 
@@ -439,95 +453,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 854d7e35a7befee448db5aa71224fa0b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterMovement
-  MoveAction:
-    m_Name: Move
-    m_Type: 0
-    m_ExpectedControlType: 
-    m_Id: 60d2ddc4-bbff-45c6-9f1d-33f33912a151
-    m_Processors: 
-    m_Interactions: 
-    m_SingletonActionBindings:
-    - m_Name: Arrow
-      m_Id: 899a5947-a069-4964-911c-7814855f8e74
-      m_Path: 2DVector
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 4
-    - m_Name: up
-      m_Id: bac9199d-682b-41ed-aa3e-b0e931324965
-      m_Path: <Keyboard>/upArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 8
-    - m_Name: down
-      m_Id: a0c0a90b-cfe9-4b25-b3e0-d1b6465453f8
-      m_Path: <Keyboard>/downArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 8
-    - m_Name: left
-      m_Id: 0fa79cf4-d929-43ae-a718-6052296b768d
-      m_Path: <Keyboard>/leftArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 8
-    - m_Name: right
-      m_Id: 955e5300-aaef-4590-a505-6e68a8a42184
-      m_Path: <Keyboard>/rightArrow
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 8
-    - m_Name: Button
-      m_Id: 376a940d-217f-47be-9bb4-6be118336186
-      m_Path: 2DVector
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 4
-    - m_Name: up
-      m_Id: 89b6c81e-3bd9-463b-a188-29620b377351
-      m_Path: <Keyboard>/w
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 8
-    - m_Name: down
-      m_Id: 71a4df2b-f9f1-4999-93df-75e43b515143
-      m_Path: <Keyboard>/s
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 8
-    - m_Name: left
-      m_Id: 00542cf9-9c04-4751-b837-179c3aec6bbc
-      m_Path: <Keyboard>/a
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 8
-    - m_Name: right
-      m_Id: 1ed84eae-97c9-4ea6-8cd4-02a16dbfc257
-      m_Path: <Keyboard>/d
-      m_Interactions: 
-      m_Processors: 
-      m_Groups: 
-      m_Action: Move
-      m_Flags: 8
-    m_Flags: 0
 --- !u!114 &9208627896002038644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -585,7 +510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17543b7eb5202d4449a3fc0417fb609c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeAttackSystem
-  <SkillType>k__BackingField: 0
+  <SkillType>k__BackingField: 1
   damage: 1
   coolDown: 0.5
   attackRange: 0.8
@@ -605,7 +530,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 800f8a20d15a2574ab77f2e295e9cf3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AOELightingSkill
-  <SkillType>k__BackingField: 2
+  <SkillType>k__BackingField: 3
   damage: 2
   coolDown: 3
   attackRange: 5.5
@@ -626,7 +551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92699e3f27b22c1468ebf32262e9d2e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealSkill
-  <SkillType>k__BackingField: 3
+  <SkillType>k__BackingField: 4
   damage: 2
   coolDown: 1
   attackRange: 0
@@ -646,7 +571,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d98b066a38d355440aa0946e8372107e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DashSkill
-  <SkillType>k__BackingField: 4
+  <SkillType>k__BackingField: 5
   damage: 0
   coolDown: 2
   attackRange: 0
@@ -660,6 +585,18 @@ MonoBehaviour:
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 1024
+--- !u!114 &5086611471233366663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3071281301059090698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99392b1a02954224b91e8677096d1c01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterStatusMachine
 --- !u!1 &5257939292874081589
 GameObject:
   m_ObjectHideFlags: 0
