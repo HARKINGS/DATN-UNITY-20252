@@ -3,11 +3,12 @@ using UnityEngine;
 public enum CharacterStatus
 {
     Idle,
-    Moving,
-    Attacking,
-    Knockback,
-    Casting,
-    Dashing,
+    Move,
+
+    Attack,
+    Cast,
+    Dash,
+
     Stun,
     Hurt,
     Death

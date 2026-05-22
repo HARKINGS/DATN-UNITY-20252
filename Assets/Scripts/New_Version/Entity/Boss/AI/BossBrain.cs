@@ -10,13 +10,12 @@ public class BossBrain : MonoBehaviour
     [SerializeField] private Transform Player;
     private CharacterDetection characterDetection;
     private Vector2 PlayerDirection;
-    private Rigidbody2D rb;
-    private CharacterStatus characterState;
+    private CharacterStatusMachine StatusMachine;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
+        StatusMachine = GetComponent<CharacterStatusMachine>();
         skillCaster = GetComponent<SkillCaster>();
         movement = GetComponent<CharacterMovement>();
         memory = GetComponent<BossMemory>();
@@ -25,15 +24,46 @@ public class BossBrain : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {        
+    {
         if (CheckCharacter() != null)
         {
-            //Debug.Log("Find Player");
+            CharacterStatus currentStatus = StatusMachine.CurrentState;
+
+            // Nếu đang bị thương, choáng hoặc đang ra chiêu, không làm gì cả
+            if (currentStatus == CharacterStatus.Hurt ||
+                currentStatus == CharacterStatus.Stun ||
+                movement.GetAnimation().CheckStatus("isCasting") || 
+                movement.GetAnimation().CheckStatus("isAttack")) // Kiểm tra thông qua Animator hoặc Status
+            {
+                Debug.Log("currentStatus: " + currentStatus);
+                Debug.Log("Check Status: " + movement.GetAnimation().CheckStatus("isCasting") + " - " + movement.GetAnimation().CheckStatus("isAttack"));
+                movement.Move(Vector2.zero);
+                return;
+            }
+
             PlayerDirection = GetDirection();
-            Think();
+
+            // Cooldown cho việc suy nghĩ, không gọi Think() mỗi khung hình
+            // Hoặc chỉ Think() khi đang ở trạng thái Idle/Move
+            //if (movement.GetAnimation().CheckStatus("isIdle") || 
+            //    movement.GetAnimation().CheckStatus("isChasing"))
+            //{
+                Debug.Log("Boss is thinking...");
+                Think();
+            //}
+
             movement.Move(PlayerDirection);
-        } 
-        else movement.Move(Vector2.zero);
+        }
+        else
+        {
+            movement.Move(Vector2.zero);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.tag == "Player")
+            StatusMachine.ChangeStatus(CharacterStatus.Idle);
     }
 
     private Vector2 GetDirection()
@@ -51,6 +81,11 @@ public class BossBrain : MonoBehaviour
 
     private void Think()
     {
+        CharacterStatus currentStatus = StatusMachine.CurrentState;
+
+        if (currentStatus == CharacterStatus.Hurt || currentStatus == CharacterStatus.Stun)
+            return;
+
         SkillBase bestSkill = null;
         float bestScore = -1;
 
@@ -79,6 +114,6 @@ public class BossBrain : MonoBehaviour
         }
 
         skillCaster.Execute(bestSkill.SkillType);
-        //Debug.Log("The Best Skill: " + bestSkill.SkillType);
+        Debug.Log("The Best Skill: " + bestSkill.SkillType);
     }
 }

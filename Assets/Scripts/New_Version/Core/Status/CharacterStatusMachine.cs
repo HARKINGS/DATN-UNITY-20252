@@ -1,31 +1,32 @@
+using System;
 using UnityEngine;
 
 public class CharacterStatusMachine : MonoBehaviour
 {
-    private CharacterStatus currentStatus;
-    private CharacterAnimation characterAnimation;
+    public CharacterStatus CurrentState { get; private set; }
 
-    void Start()
-    {
-        currentStatus = CharacterStatus.Idle;
-        characterAnimation = GetComponent<CharacterAnimation>();
-    }
+    public event Action<CharacterStatus> OnStateChanged;
 
-    private bool CheckChangeStatus(CharacterStatus newStatus)
-    {
-        if (currentStatus == CharacterStatus.Hurt || currentStatus == CharacterStatus.Stun)
-        {
-            return newStatus == CharacterStatus.Idle;
-        }
-        return true;
-    }
+    public bool CanMove =>
+        CurrentState == CharacterStatus.Idle ||
+        CurrentState == CharacterStatus.Move ||
+        CurrentState == CharacterStatus.Dash;
 
-    public void ChangeStatus(CharacterStatus newStatus)
+    public bool CanCast =>
+        CurrentState == CharacterStatus.Idle ||
+        CurrentState == CharacterStatus.Move;
+
+    public bool CanAttack =>
+        CurrentState == CharacterStatus.Idle ||
+        CurrentState == CharacterStatus.Move;
+
+    public void ChangeStatus(CharacterStatus newState)
     {
-        if (currentStatus != newStatus && CheckChangeStatus(newStatus))
-        {
-            characterAnimation.ResetAnimation();
-            currentStatus = newStatus;
-        }
+        if (CurrentState == newState)
+            return;
+
+        CurrentState = newState;
+
+        OnStateChanged?.Invoke(newState);
     }
 }

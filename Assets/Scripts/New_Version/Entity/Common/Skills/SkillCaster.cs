@@ -22,11 +22,11 @@ public class SkillCaster : MonoBehaviour
     }
     public void Execute(SkillEnum type)
     {
-        Debug.Log(type);
+        //Debug.Log(type);
         if (!skillMap.ContainsKey(type))
             return;
 
-        Debug.Log(type);
+        //Debug.Log(type);
         SkillBase skill = skillMap[type];
 
         if (!skill.CanUse()) return;

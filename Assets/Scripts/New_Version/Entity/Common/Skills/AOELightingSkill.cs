@@ -5,39 +5,28 @@ public class AOELightingSkill : SkillBase
     [Header("Spark Variables")]
     public GameObject sparkFXPrefab;
     public GameObject borderLightFXPrefab;
-    private Transform playerTransform;
-
-    private void Start()
-    {
-        playerTransform = transform;
-    }
-
-    private void Update()
-    {
-        //playerTransform.position += Vector3.forward * Time.deltaTime;
-        playerTransform = transform;
-    }
 
     public override void Execute(DamageData damageData)
     {
         damageData.Damage = damage;
         base.Execute(damageData);
-        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Casting);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Cast);
+        Debug.Log("Current Status is: " + GetComponent<CharacterStatusMachine>().CurrentState);
         animator.PlaySkill(this, "isCasting");
     }
 
     public override void ApplyEffect()
     {
-        Debug.Log("AOE Attack!");
+        //Debug.Log("AOE Attack!");
 
         if (borderLightFXPrefab != null)
         {
-            GameObject newFx = Instantiate(borderLightFXPrefab, playerTransform.position, Quaternion.identity);
+            GameObject newFx = Instantiate(borderLightFXPrefab, transform.position, Quaternion.identity);
             Destroy(newFx, 1f);
         }
 
         Collider2D[] enemies = Physics2D.OverlapCircleAll(
-            playerTransform.position,
+            transform.position,
             attackRange,
             targetLayer
         );

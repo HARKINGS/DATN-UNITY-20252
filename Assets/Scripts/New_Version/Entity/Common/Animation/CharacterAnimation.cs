@@ -58,17 +58,20 @@ public class CharacterAnimation : MonoBehaviour
         Destroy(gameObject);
     }
 
+    public bool CheckStatus(string Flag)
+    {
+        return animator.GetBool(Flag);
+    }
+
     public bool CheckCast()
     {
         return animator.GetBool("isCasting");
     }
 
-    public void PlaySkill(SkillBase skill, string trigger)
+    public void PlaySkill(SkillBase skill, string flag)
     {
-        currentSkill = skill;
-        Debug.Log(trigger);
-
-        animator.SetBool(trigger, true);
+        SetCurrentSkill(skill);
+        animator.SetBool(flag, true);
     }
 
     public void SetCurrentSkill(SkillBase skill)
@@ -79,7 +82,7 @@ public class CharacterAnimation : MonoBehaviour
     // Animation Event
     public void AnimationEvent_ApplySkill()
     {
-        Debug.Log("Apply_Effect");
+        //Debug.Log("Apply_Effect");
         currentSkill?.ApplyEffect();
     }
 
@@ -96,13 +99,14 @@ public class CharacterAnimation : MonoBehaviour
 
         if (move.x == 0 && move.y == 0)
         {
-            //animator.SetBool("isChasing", false);
+            if(GetComponent<CharacterStatusMachine>().CanCast)
+                GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Idle);
             animator.SetBool("isIdle", true);
         }
         else
         {
+            GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Move);
             animator.SetBool("isIdle", false);
-            //animator.SetBool("isChasing", true);
         }
     }
 

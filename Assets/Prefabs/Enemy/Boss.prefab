@@ -211,11 +211,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fe88ad0030f54841867cf0b4f5d1f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
-  <MaxHealth>k__BackingField: 100
+  <MaxHealth>k__BackingField: 20
   <MoveSpeed>k__BackingField: 5
-  <EffectTime>k__BackingField: 2
-  <EffectForce>k__BackingField: 5
-  <EffectDuration>k__BackingField: 0.2
+  <EffectTime>k__BackingField: 0.2
+  <EffectForce>k__BackingField: 50
+  <EffectDuration>k__BackingField: 0.5
 --- !u!114 &4602794929443795527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299,7 +299,7 @@ MonoBehaviour:
   detectionPoint: {fileID: 5840501824517806579}
   characterLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 64
 --- !u!114 &7451401360483529166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,7 +371,7 @@ MonoBehaviour:
     m_Bits: 0
   dashSpace: 3
   dashEffectDuration: 0.5
-  dashFXPrefab: {fileID: 3384930042211074698, guid: 7a80c10d856539049bbfe24a96ebd718, type: 3}
+  dashFXPrefab: {fileID: 2208436243143390426, guid: 4ad15f37e15067d4f91c663b295ac2ac, type: 3}
   playerRadius: 0.5
   obstacleLayer:
     serializedVersion: 2
@@ -523,7 +523,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 5.5
+  m_Radius: 10
 --- !u!1 &8443249233598712575
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,6 +6,8 @@ public class PlayerInputBrain : MonoBehaviour
 {
     [SerializeField] private SkillCaster skillCaster;
     [SerializeField] private CharacterMovement movement;
+
+    private CharacterStatusMachine StatusMachine;
 
     [Header("Input")]
     public InputAction MoveAction;
@@ -15,6 +18,7 @@ public class PlayerInputBrain : MonoBehaviour
 
     private void Start()
     {
+        StatusMachine = GetComponent<CharacterStatusMachine>();
         skillCaster = GetComponent<SkillCaster>();
         movement = GetComponent<CharacterMovement>();
     }
@@ -39,20 +43,26 @@ public class PlayerInputBrain : MonoBehaviour
 
     private void Update()
     {
+        if (!StatusMachine.CanAttack || !StatusMachine.CanCast || !StatusMachine.CanMove)
+            return;
+
+        //Debug.Log("Current Status is: " + StatusMachine.CurrentState);
+
         if (AttackAction.triggered)
         {
-            Debug.Log("Attack Active");
             skillCaster.Execute(SkillEnum.Attack);
         }
-        else if (HealAction.triggered)
-            skillCaster.Execute(SkillEnum.Heal);
-        else if (AOEAction.triggered)
-            skillCaster.Execute(SkillEnum.AOE);
         else if (DashAction.triggered)
         {
-            Debug.Log("Dash Active");
             skillCaster.Execute(SkillEnum.Dash);
         }
+        else
+        {
+            if (HealAction.triggered)
+                skillCaster.Execute(SkillEnum.Heal);
+            else if (AOEAction.triggered)
+                skillCaster.Execute(SkillEnum.AOE); 
+        }  
     }
 
     private void FixedUpdate()

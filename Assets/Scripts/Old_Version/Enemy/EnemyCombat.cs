@@ -9,12 +9,6 @@ public class EnemyCombat : MonoBehaviour
     public float stunTime;
     public LayerMask playerLayer;
 
-    // private void OnCollisionEnter2D(Collision2D other)
-    // {
-    //     if (other.gameObject.tag == "Player")
-    //         other.gameObject.GetComponent<PlayerHealth>().ChangeHealth(-damage);
-    // }
-
     public void Attack()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(

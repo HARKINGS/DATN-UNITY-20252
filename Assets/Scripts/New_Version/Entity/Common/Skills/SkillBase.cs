@@ -30,7 +30,8 @@ public abstract class SkillBase : MonoBehaviour, ISkill
 
     public virtual bool CanUse()
     {
-        return (Time.time >= lastUseTime + coolDown);
+        return (Time.time >= lastUseTime + coolDown && 
+            GetComponent<CharacterStatusMachine>().CanCast);
     }
 
     public virtual void Execute(DamageData damageData)

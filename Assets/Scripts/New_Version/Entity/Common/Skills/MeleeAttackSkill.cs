@@ -13,13 +13,13 @@ public class MeleeAttackSkill : SkillBase
     {
         damageData.Damage = damage;
         base.Execute(damageData);
-        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Attacking);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Attack);
         animator.PlaySkill(this, "isAttack");
     }
 
     public override void ApplyEffect()
     {
-        Debug.Log("Melee Attack!");
+        //Debug.Log("Melee Attack!");
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             attackPoint.position,
             attackRange,
