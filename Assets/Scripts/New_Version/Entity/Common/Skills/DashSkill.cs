@@ -13,8 +13,9 @@ public class DashSkill : SkillBase
     [SerializeField] private float playerRadius = 0.5f;
     [SerializeField] private LayerMask obstacleLayer;
 
-    private void Start()
+    override protected void Start()
     {
+        base.Start();
         playerTransform = transform;
         health = GetComponent<CharacterHealth>();
         movement = GetComponent<CharacterMovement>();

@@ -57,8 +57,9 @@ GameObject:
   - component: {fileID: 2583921738895166984}
   - component: {fileID: 6756255057406697662}
   - component: {fileID: 5086611471233366663}
+  - component: {fileID: 8973010159908656780}
   m_Layer: 6
-  m_Name: Player_New
+  m_Name: Player_new
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -238,11 +239,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fe88ad0030f54841867cf0b4f5d1f5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStats
-  <MaxHealth>k__BackingField: 20
-  <MoveSpeed>k__BackingField: 5
-  <EffectTime>k__BackingField: 2
-  <EffectForce>k__BackingField: 5
-  <EffectDuration>k__BackingField: 0.2
+  <MaxHealth>k__BackingField: 5
+  <MoveSpeed>k__BackingField: 10
+  <EffectTime>k__BackingField: 0.2
+  <EffectForce>k__BackingField: 50
+  <EffectDuration>k__BackingField: 0.5
 --- !u!114 &3088815472854460533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -532,7 +533,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AOELightingSkill
   <SkillType>k__BackingField: 3
   damage: 2
-  coolDown: 3
+  coolDown: 10
   attackRange: 5.5
   targetLayer:
     serializedVersion: 2
@@ -552,8 +553,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealSkill
   <SkillType>k__BackingField: 4
-  damage: 2
-  coolDown: 1
+  damage: 5
+  coolDown: 5
   attackRange: 0
   targetLayer:
     serializedVersion: 2
@@ -597,6 +598,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99392b1a02954224b91e8677096d1c01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStatusMachine
+--- !u!114 &8973010159908656780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3071281301059090698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ca541e335d3a474fbb9d87f5d91cc25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EndGamePopup
+  endGamePopup: {fileID: 0}
+  endGameTitle: {fileID: 0}
 --- !u!1 &5257939292874081589
 GameObject:
   m_ObjectHideFlags: 0

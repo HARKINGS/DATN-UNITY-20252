@@ -28,8 +28,15 @@ public abstract class SkillBase : MonoBehaviour, ISkill
         //Debug.Log(SkillType);
     }
 
+    protected virtual void Start()
+    {
+        lastUseTime = -coolDown; // Cho phép sử dụng kỹ năng ngay khi bắt đầu
+    }
+
     public virtual bool CanUse()
     {
+        Debug.Log("Check " + SkillType + " at time " + Time.time);
+
         return (Time.time >= lastUseTime + coolDown && 
             GetComponent<CharacterStatusMachine>().CanCast);
     }

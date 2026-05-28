@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class BossBrain : MonoBehaviour
 {
@@ -87,7 +88,7 @@ public class BossBrain : MonoBehaviour
             return;
 
         SkillBase bestSkill = null;
-        float bestScore = -1;
+        float bestScore = 0;
 
         List<SkillBase> skills = skillCaster.GetSkills();
         float aggression = memory.GetAggressionLevel();
@@ -111,6 +112,12 @@ public class BossBrain : MonoBehaviour
                 bestScore = score;
                 bestSkill = skill;
             }
+        }
+
+        if(bestScore <= 0 || bestSkill == null || !bestSkill.CanUse())
+        {
+            Debug.Log("No suitable skill found or skill is on cooldown.");
+            return;
         }
 
         skillCaster.Execute(bestSkill.SkillType);

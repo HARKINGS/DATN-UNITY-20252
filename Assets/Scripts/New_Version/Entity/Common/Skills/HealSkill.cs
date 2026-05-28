@@ -32,7 +32,7 @@ public class HealSkill : SkillBase
 
     public override float Evaluate(AIContext context)
     {
-        if (context.BossHPPercent < 0.3f && base.CanUse())
+        if (context.BossHPPercent < 0.5f && base.CanUse())
             return 100;
 
         return 0;

@@ -49,9 +49,7 @@ public class AOELightingSkill : SkillBase
 
     public override float Evaluate(AIContext context)
     {
-        float score = 10;
-
-        //Debug.Log("AOE Evaluate: Distance to Player = " + context.DistanceToPlayer);
+        float score = 0;
 
         if (context.DistanceToPlayer <= 5.5f && base.CanUse())
             score += 60;
