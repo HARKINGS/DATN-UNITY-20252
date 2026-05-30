@@ -10,6 +10,7 @@ public abstract class SkillBase : MonoBehaviour, ISkill
     [SerializeField] protected float coolDown;
     [SerializeField] protected float attackRange;
     [SerializeField] protected LayerMask targetLayer;
+    [field: SerializeField] public Sprite skillIcon { get; private set; }
 
     protected DamageData currentDamageData;
     protected CharacterAnimation animator;
@@ -35,7 +36,7 @@ public abstract class SkillBase : MonoBehaviour, ISkill
 
     public virtual bool CanUse()
     {
-        Debug.Log("Check " + SkillType + " at time " + Time.time);
+        //Debug.Log("Check " + SkillType + " at time " + Time.time);
 
         return (Time.time >= lastUseTime + coolDown && 
             GetComponent<CharacterStatusMachine>().CanCast);

@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class SkillCaster : MonoBehaviour
 {
+    public SpellUIManager spellUIManager;
+
     [SerializeField] private List<SkillBase> skills;
     private Dictionary<SkillEnum, SkillBase> skillMap;
     private CharacterStats stats;
@@ -20,22 +22,36 @@ public class SkillCaster : MonoBehaviour
             skillMap.Add(skill.SkillType, skill);
         }
     }
+
+    private void Start()
+    {
+        if(spellUIManager != null) spellUIManager.ShowSkills(skills);
+    }
+
     public void Execute(SkillEnum type)
     {
-        //Debug.Log(type);
         if (!skillMap.ContainsKey(type))
             return;
 
-        //Debug.Log(type);
-        SkillBase skill = skillMap[type];
+        SkillBase CurrentSkill = skillMap[type];
 
-        if (!skill.CanUse()) return;
+        if (!CurrentSkill.CanUse()) return;
 
         DamageData damageData = BuildContext();
 
-        skill.Execute(damageData);
+        CurrentSkill.Execute(damageData);
+
+        if(spellUIManager != null) 
+            spellUIManager.HighlightSkill(CurrentSkill);
     }
 
+    private void HighlightSkill(SkillBase CurrentSkill)
+    {
+        if (CurrentSkill != null)
+        {
+            spellUIManager.HighlightSkill(CurrentSkill);
+        }
+    }
 
     private DamageData BuildContext()
     {

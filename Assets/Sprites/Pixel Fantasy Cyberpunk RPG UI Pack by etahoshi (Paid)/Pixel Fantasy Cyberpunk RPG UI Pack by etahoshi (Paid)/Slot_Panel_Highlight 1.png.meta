@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 64a233a9a7759f04ab0a5be08cbcb639
+guid: 133cada0f91cafc4bb280d158b8198f7
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 548154793517143203
-    second: Border(Horizontal)_03_0
+      213: -9161073305427644647
+    second: Slot_Panel_Highlight_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Border(Horizontal)_03_0
+      name: Slot_Panel_Highlight_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 4
-        width: 10
-        height: 8
+        x: 2
+        y: 2
+        width: 28
+        height: 28
       alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 1, z: 1, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3a4548561ef6b9700800000000000000
-      internalID: 548154793517143203
+      spriteID: 91febacbd545dd080800000000000000
+      internalID: -9161073305427644647
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 6f8382299f344ee4ba35ce89f96b0dbe
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Border(Horizontal)_03_0: 548154793517143203
+      Slot_Panel_Highlight_0: -9161073305427644647
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

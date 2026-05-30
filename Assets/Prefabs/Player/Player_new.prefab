@@ -494,6 +494,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9acaef6b7b41bf845ad312659e316350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkillCaster
+  spellUIManager: {fileID: 0}
   skills:
   - {fileID: 4020820152025596432}
   - {fileID: 4841385247915600393}
@@ -518,6 +519,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 128
+  <skillIcon>k__BackingField: {fileID: -2133073565, guid: 678e0cc1e85447f4a879c2a92e3a6ebb, type: 3}
   attackPoint: {fileID: 2270920528776003886}
 --- !u!114 &4841385247915600393
 MonoBehaviour:
@@ -538,6 +540,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 128
+  <skillIcon>k__BackingField: {fileID: -1394054071, guid: 678e0cc1e85447f4a879c2a92e3a6ebb, type: 3}
   sparkFXPrefab: {fileID: 4524996498095965528, guid: 85440b87e7e34de4a8dca212ff860799, type: 3}
   borderLightFXPrefab: {fileID: 121690578996982696, guid: 6d4d86babb142fe4db3c63750760d8f4, type: 3}
 --- !u!114 &2583921738895166984
@@ -559,6 +562,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  <skillIcon>k__BackingField: {fileID: 1555146918, guid: 678e0cc1e85447f4a879c2a92e3a6ebb, type: 3}
   healFXPrefab: {fileID: 2791167030859915096, guid: c8e5180b932f71d4789286e96cb8b3d0, type: 3}
 --- !u!114 &6756255057406697662
 MonoBehaviour:
@@ -579,6 +583,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  <skillIcon>k__BackingField: {fileID: -418853304, guid: 678e0cc1e85447f4a879c2a92e3a6ebb, type: 3}
   dashSpace: 3
   dashEffectDuration: 0.5
   dashFXPrefab: {fileID: 2208436243143390426, guid: 4ad15f37e15067d4f91c663b295ac2ac, type: 3}
@@ -612,6 +617,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EndGamePopup
   endGamePopup: {fileID: 0}
   endGameTitle: {fileID: 0}
+  restartButton: {fileID: 0}
+  mainMenuButton: {fileID: 0}
+  health: {fileID: 0}
 --- !u!1 &5257939292874081589
 GameObject:
   m_ObjectHideFlags: 0

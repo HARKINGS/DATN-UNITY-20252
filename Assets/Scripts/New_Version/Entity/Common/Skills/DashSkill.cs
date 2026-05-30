@@ -30,19 +30,19 @@ public class DashSkill : SkillBase
     {
         damageData.Damage = damage;
         base.Execute(damageData);
+        
         GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Dash);
-        ApplyEffect();
-    }
 
-    public override void ApplyEffect()
-    {
-        //Debug.Log("Apply Dash!");
         if (dashFXPrefab != null)
         {
             GameObject newFx = Instantiate(dashFXPrefab, health.hitPoint.position, Quaternion.identity);
             Destroy(newFx, dashEffectDuration);
         }
+        ApplyEffect();
+    }
 
+    public override void ApplyEffect()
+    {
         Vector2 dashDirection = movement.getMove();
         Vector2 destination = (Vector2)playerTransform.position + dashDirection * dashSpace;
 

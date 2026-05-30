@@ -44,14 +44,8 @@ public class BossBrain : MonoBehaviour
 
             PlayerDirection = GetDirection();
 
-            // Cooldown cho việc suy nghĩ, không gọi Think() mỗi khung hình
-            // Hoặc chỉ Think() khi đang ở trạng thái Idle/Move
-            //if (movement.GetAnimation().CheckStatus("isIdle") || 
-            //    movement.GetAnimation().CheckStatus("isChasing"))
-            //{
-                Debug.Log("Boss is thinking...");
-                Think();
-            //}
+            Debug.Log("Boss is thinking...");
+            Think();
 
             movement.Move(PlayerDirection);
         }
@@ -63,8 +57,24 @@ public class BossBrain : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Player")
+        if (other.gameObject.CompareTag("Player"))
+        {
+            // 1. Đưa trạng thái Logic về Idle
             StatusMachine.ChangeStatus(CharacterStatus.Idle);
+
+            // 2. QUAN TRỌNG: Đưa trạng thái hình ảnh (Animator) về an toàn
+            CharacterAnimation bossAnim = movement.GetAnimation();
+            if (bossAnim != null)
+            {
+                bossAnim.ResetAnimation();
+                bossAnim.AnimationEvent_EndSkill(); // Xóa skill đang cast dở
+                bossAnim.FinishCast();              // Tắt isCasting
+                bossAnim.FinishAttack();            // Tắt isAttack
+            }
+
+            // 3. Đưa vận tốc vật lý về 0 ngay lập tức
+            movement.Move(Vector2.zero);
+        }
     }
 
     private Vector2 GetDirection()

@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 16
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -223,7 +223,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheets_5
+      name: AOE-icon
       rect:
         serializedVersion: 2
         x: 0
@@ -729,7 +729,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheets_28
+      name: Teleport-icon
       rect:
         serializedVersion: 2
         x: 48
@@ -839,7 +839,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheets_33
+      name: Heal-Icon
       rect:
         serializedVersion: 2
         x: 48
@@ -1235,7 +1235,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheets_51
+      name: Dash-icon
       rect:
         serializedVersion: 2
         x: 16
@@ -1301,7 +1301,7 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: spritesheets_54
+      name: MeleeAttack-icon
       rect:
         serializedVersion: 2
         x: 64
@@ -1338,6 +1338,11 @@ TextureImporter:
       - key: SpriteEditor.SliceSettings
         value: '{"sliceOnImport":false,"gridCellCount":{"x":5.0,"y":11.0},"gridSpriteSize":{"x":16.0,"y":16.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
+      AOE-icon: -1394054071
+      Dash-icon: -418853304
+      Heal-Icon: 1555146918
+      MeleeAttack-icon: -2133073565
+      Teleport-icon: -2039280318
       spritesheets_0: -9055209025805820190
       spritesheets_1: 1641353488
       spritesheets_10: -270265367
@@ -1359,13 +1364,11 @@ TextureImporter:
       spritesheets_25: 1012369968
       spritesheets_26: -623527714
       spritesheets_27: 2014586583
-      spritesheets_28: -2039280318
       spritesheets_29: 2144731319
       spritesheets_3: 1455699308
       spritesheets_30: -2025660474
       spritesheets_31: -1098925895
       spritesheets_32: 1139615986
-      spritesheets_33: 1555146918
       spritesheets_34: -74545339
       spritesheets_35: 1488252032
       spritesheets_36: 1855728781
@@ -1383,12 +1386,9 @@ TextureImporter:
       spritesheets_47: -1116190450
       spritesheets_48: 2062061851
       spritesheets_49: 1480048680
-      spritesheets_5: -1394054071
       spritesheets_50: 879349612
-      spritesheets_51: -418853304
       spritesheets_52: 1491036803
       spritesheets_53: 1959240141
-      spritesheets_54: -2133073565
       spritesheets_6: -332099657
       spritesheets_7: 1178923964
       spritesheets_8: -426630895
