@@ -20,7 +20,12 @@ public abstract class SkillBase : MonoBehaviour, ISkill
     internal GameObject GetAttacker()
     {
         return currentDamageData.Attacker;
-    }    
+    }  
+    
+    internal float GetCooldown()
+    {
+        return coolDown;
+    }
 
     protected virtual void Awake()
     {

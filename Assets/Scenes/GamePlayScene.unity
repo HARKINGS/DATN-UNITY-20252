@@ -319,7 +319,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
   m_UseReflectionProbes: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -421,6 +421,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Boss
       objectReference: {fileID: 0}
+    - target: {fileID: 1167618663516176533, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4602794929443795527, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: hpRect
       value: 
@@ -435,15 +439,15 @@ PrefabInstance:
       objectReference: {fileID: 901657245}
     - target: {fileID: 5826668043659084639, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_Radius
-      value: 7
+      value: 21
       objectReference: {fileID: 0}
     - target: {fileID: 6920905172665878990, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -7.32
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 6920905172665878990, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.93
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6920905172665878990, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1253,7 +1257,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 550, y: -400}
+  m_AnchoredPosition: {x: 550, y: -350}
   m_SizeDelta: {x: -1200, y: -900}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1717437028
@@ -1756,13 +1760,14 @@ GameObject:
   - component: {fileID: 2068151196}
   - component: {fileID: 2068151195}
   - component: {fileID: 2068151194}
+  - component: {fileID: 2068151198}
   m_Layer: 5
   m_Name: WaitingScene
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2068151194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1847,6 +1852,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &2068151198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2068151193}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89593a1bf3018a9478b5652fd1ea0d01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaitingSceneUI
+  waitingScenePanel: {fileID: 2068151193}
+  countdown: {fileID: 791661661}
 --- !u!1001 &2092127941
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2053,6 +2072,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3349731466635486022, guid: 270ae481601cfb94392562ba203c96cb, type: 3}
+      propertyPath: popScale
+      value: 1.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349731466635486022, guid: 270ae481601cfb94392562ba203c96cb, type: 3}
+      propertyPath: popDuration
+      value: 0.25
+      objectReference: {fileID: 0}
     - target: {fileID: 4886168069563550834, guid: 270ae481601cfb94392562ba203c96cb, type: 3}
       propertyPath: m_Name
       value: SpellSlot
@@ -2092,11 +2119,11 @@ PrefabInstance:
       objectReference: {fileID: 397625995}
     - target: {fileID: 8509273788301234193, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.44
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 8509273788301234193, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.16
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8509273788301234193, guid: cd3232c4356e7cf44976bfaf1bf5027a, type: 3}
       propertyPath: m_LocalPosition.z

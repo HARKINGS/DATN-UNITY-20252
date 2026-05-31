@@ -43,6 +43,8 @@ public class SkillCaster : MonoBehaviour
 
         if(spellUIManager != null) 
             spellUIManager.HighlightSkill(CurrentSkill);
+
+        spellUIManager.TriggerCooldown(CurrentSkill, CurrentSkill.GetCooldown());
     }
 
     private void HighlightSkill(SkillBase CurrentSkill)

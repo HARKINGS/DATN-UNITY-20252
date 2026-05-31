@@ -36,4 +36,16 @@ public class SpellUIManager : MonoBehaviour
             }
         }
     }
+
+    public void TriggerCooldown(SkillBase skill, float cooldownDuration)
+    {
+        foreach (var slot in spellSlots)
+        {
+            if (slot.AssignedSkill == skill)
+            {
+                slot.TriggerCooldown(cooldownDuration);
+                break;
+            }
+        }
+    }
 }
