@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class BossBrain : MonoBehaviour
 {
@@ -26,6 +25,12 @@ public class BossBrain : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!WaitingSceneUI.IsBattleStarted)
+        {
+            movement.Move(Vector2.zero);
+            return;
+        }
+
         if (CheckCharacter() != null)
         {
             CharacterStatus currentStatus = StatusMachine.CurrentState;
@@ -37,14 +42,14 @@ public class BossBrain : MonoBehaviour
                 movement.GetAnimation().CheckStatus("isAttack")) // Kiểm tra thông qua Animator hoặc Status
             {
                 Debug.Log("currentStatus: " + currentStatus);
-                Debug.Log("Check Status: " + movement.GetAnimation().CheckStatus("isCasting") + " - " + movement.GetAnimation().CheckStatus("isAttack"));
+                //Debug.Log("Check Status: " + movement.GetAnimation().CheckStatus("isCasting") + " - " + movement.GetAnimation().CheckStatus("isAttack"));
                 movement.Move(Vector2.zero);
                 return;
             }
 
             PlayerDirection = GetDirection();
 
-            Debug.Log("Boss is thinking...");
+            //Debug.Log("Boss is thinking...");
             Think();
 
             movement.Move(PlayerDirection);
@@ -98,7 +103,7 @@ public class BossBrain : MonoBehaviour
             return;
 
         SkillBase bestSkill = null;
-        float bestScore = 0;
+        float bestScore = -1;
 
         List<SkillBase> skills = skillCaster.GetSkills();
         float aggression = memory.GetAggressionLevel();
@@ -106,7 +111,7 @@ public class BossBrain : MonoBehaviour
 
         AIContext context = new AIContext
         (
-            (Player.position - transform.position).magnitude,
+            DistanceToPlayer: Vector2.Distance(transform.position, Player.position),
             BossHPPercent: movement.GetHealth().GetHealthPercent(),
             PlayerAggression: aggression,
             PlayerDefense: defensive,
@@ -124,13 +129,14 @@ public class BossBrain : MonoBehaviour
             }
         }
 
-        if(bestScore <= 0 || bestSkill == null || !bestSkill.CanUse())
+        if (bestSkill == null || bestScore <= 0f)
         {
-            Debug.Log("No suitable skill found or skill is on cooldown.");
+            Debug.Log("AI chưa tìm được kỹ năng phù hợp hoặc tất cả đang hồi chiêu.");
             return;
         }
 
+        // 4. CHẮC CHẮN tung chiêu thành công vì đã được lọc CanUse() từ trên
+        Debug.Log("The Best Skill Executed: " + bestSkill.SkillType);
         skillCaster.Execute(bestSkill.SkillType);
-        Debug.Log("The Best Skill: " + bestSkill.SkillType);
     }
 }

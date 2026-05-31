@@ -113,11 +113,19 @@ public class CharacterAnimation : MonoBehaviour
     public void FinishAttack()
     {
         animator.SetBool("isAttack", false);
+        if(animator.GetBool("isIdle"))
+        {
+            GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Idle);
+        }
     }
 
     public void FinishCast()
     {
         animator.SetBool("isCasting", false);
+        //if (animator.GetBool("isIdle"))
+        //{
+        //    GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Idle);
+        //}
     }
 
     public void ResetAnimation()

@@ -8,7 +8,7 @@ public class SpellSlot : MonoBehaviour
     [Header("References")]
     public Image iconImage;
     public GameObject highlight;
-    [SerializeField] private TMP_Text spellText;
+    [SerializeField] private TMP_Text spellText, keyActive;
     [SerializeField] private Image cooldownOverlay;
 
     public SkillBase AssignedSkill { get; private set; }

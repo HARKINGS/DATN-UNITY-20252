@@ -19,7 +19,6 @@ public class MeleeAttackSkill : SkillBase
 
     public override void ApplyEffect()
     {
-        //Debug.Log("Melee Attack!");
         Collider2D[] hits = Physics2D.OverlapCircleAll(
             attackPoint.position,
             attackRange,

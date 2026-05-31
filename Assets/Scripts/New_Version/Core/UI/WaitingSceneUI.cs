@@ -8,6 +8,13 @@ public class WaitingSceneUI : MonoBehaviour
     [SerializeField] private GameObject waitingScenePanel;
     [SerializeField] private TMP_Text countdown;
 
+    public static bool IsBattleStarted { get; private set; } = false;
+
+    private void Awake()
+    {
+        IsBattleStarted = false;
+    }
+
     private void Start()
     {
         Time.timeScale = 0f;
@@ -40,5 +47,6 @@ public class WaitingSceneUI : MonoBehaviour
 
         // Đảm bảo game chạy bình thường, KHÔNG để timeScale = 0 ở đây bạn nhé!
         Time.timeScale = 1f;
+        IsBattleStarted = true;
     }
 }

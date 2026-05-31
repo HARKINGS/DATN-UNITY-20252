@@ -60,6 +60,10 @@ public class DashSkill : SkillBase
         } 
 
         playerTransform.position = destination;
+        if(dashDirection != Vector2.zero)
+            GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Move);
+        else 
+            GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Idle);
     }
 
     public override float Evaluate(AIContext context)

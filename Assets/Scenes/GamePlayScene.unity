@@ -423,7 +423,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1167618663516176533, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4602794929443795527, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: hpRect

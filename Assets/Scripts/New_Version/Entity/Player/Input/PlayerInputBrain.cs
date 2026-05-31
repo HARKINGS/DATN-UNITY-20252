@@ -43,11 +43,6 @@ public class PlayerInputBrain : MonoBehaviour
 
     private void Update()
     {
-        if (!StatusMachine.CanAttack || !StatusMachine.CanCast || !StatusMachine.CanMove)
-            return;
-
-        //Debug.Log("Current Status is: " + StatusMachine.CurrentState);
-
         if (AttackAction.triggered)
         {
             skillCaster.Execute(SkillEnum.Attack);
