@@ -8,6 +8,7 @@ public enum CharacterStatus
     Attack,
     Cast,
     Dash,
+    Block,
 
     Stun,
     Hurt,

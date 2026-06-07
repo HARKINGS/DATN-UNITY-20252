@@ -7,7 +7,13 @@ public class MeleeAttackSkill : SkillBase
     public MeleeAttackSkill(Transform attackPoint)
     {
         this.attackPoint = attackPoint;
-    }    
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        KeySkill = 'J'; // Khởi tạo đòn đánh thường mặc định là phím J (Dùng nháy đơn ' ' cho kiểu char)
+    }
 
     public override void Execute(DamageData damageData)
     {
@@ -45,7 +51,10 @@ public class MeleeAttackSkill : SkillBase
 
     public override float Evaluate(AIContext context)
     {
-        if (context.DistanceToPlayer <= 1f && base.CanUse())
+        //Debug.Log("Melee Can use: " + base.CanUse());
+        //Debug.Log("Distance To Player: " + context.DistanceToPlayer);
+
+        if (context.DistanceToPlayer <= 1.1f && base.CanUse())
             return 90;
         return 0;
     }

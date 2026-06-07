@@ -42,14 +42,12 @@ public class BossBrain : MonoBehaviour
                 movement.GetAnimation().CheckStatus("isAttack")) // Kiểm tra thông qua Animator hoặc Status
             {
                 Debug.Log("currentStatus: " + currentStatus);
-                //Debug.Log("Check Status: " + movement.GetAnimation().CheckStatus("isCasting") + " - " + movement.GetAnimation().CheckStatus("isAttack"));
                 movement.Move(Vector2.zero);
                 return;
             }
 
             PlayerDirection = GetDirection();
-
-            //Debug.Log("Boss is thinking...");
+            Debug.Log("Boss is thinking...");
             Think();
 
             movement.Move(PlayerDirection);
@@ -121,6 +119,9 @@ public class BossBrain : MonoBehaviour
         foreach (SkillBase skill in skills)
         {
             float score = skill.Evaluate(context);
+
+            //if (skill.SkillType == SkillEnum.Attack)
+            //    Debug.Log($"Evaluating {skill.SkillType}: Score = {score}, Cooldown = {skill.GetCooldown()}, CanUse = {skill.CanUse()}");
 
             if (score > bestScore)
             {

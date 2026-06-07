@@ -11,7 +11,7 @@ public class SpellUIManager : MonoBehaviour
         {
             if (i < skills.Count && skills[i] != null)
             {
-                //Debug.Log($"Assigning skill {skills[i].SkillType} to slot {i}");
+                //Debug.Log($"Assigning skill {skills[i].SkillType} to slot {i} and has key {skills[i].KeySkill}");
                 spellSlots[i].SetSkill(skills[i]);
                 spellSlots[i].gameObject.SetActive(true);
             }

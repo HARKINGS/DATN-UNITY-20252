@@ -31,12 +31,14 @@ public class SpellSlot : MonoBehaviour
             cooldownOverlay.sprite = skill.skillIcon;
             iconImage.sprite = skill != null ? skill.skillIcon : null;
             iconImage.gameObject.SetActive(true);
+            keyActive.text = skill.KeySkill.ToString();
         }
         else
         {
             AssignedSkill = null;
             iconImage.sprite = null;
             iconImage.gameObject.SetActive(false);
+            keyActive.text = "";
         }
 
         cooldownOverlay.fillAmount = 0; // Reset cooldown overlay

@@ -21,6 +21,12 @@ public class DashSkill : SkillBase
         movement = GetComponent<CharacterMovement>();
     }
 
+    protected override void Awake()
+    {
+        base.Awake();
+        KeySkill = ';'; // Khởi tạo đòn đánh thường mặc định là phím J (Dùng nháy đơn ' ' cho kiểu char)
+    }
+
     private void Update()
     {
         playerTransform = transform;

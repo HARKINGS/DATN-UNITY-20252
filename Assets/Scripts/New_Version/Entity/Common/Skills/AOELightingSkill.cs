@@ -5,6 +5,11 @@ public class AOELightingSkill : SkillBase
     [Header("Spark Variables")]
     public GameObject sparkFXPrefab;
     public GameObject borderLightFXPrefab;
+    protected override void Awake()
+    {
+        base.Awake();
+        KeySkill = 'K'; // Khởi tạo đòn đánh thường mặc định là phím J (Dùng nháy đơn ' ' cho kiểu char)
+    }
 
     public override void Execute(DamageData damageData)
     {

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class CharacterHealth : MonoBehaviour, IHealth
 {
+    public AudioClip damagedClip;
+
     public Transform hitPoint;
     private int CurrentHealth;
     private CharacterStats stats;
@@ -42,6 +44,8 @@ public class CharacterHealth : MonoBehaviour, IHealth
 
         if (CurrentHealth > 0)
         {
+            if (damagedClip != null && damageData.Damage > 0)
+                CombatEvents.OnSoundRequested?.Invoke(damagedClip);
             OnHurt?.Invoke();
         }
         else

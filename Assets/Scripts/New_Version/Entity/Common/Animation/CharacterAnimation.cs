@@ -6,11 +6,9 @@ public class CharacterAnimation : MonoBehaviour
     [SerializeField] private Animator animator;
     private CharacterHealth health;
     private SkillBase currentSkill;
-    public CharacterStatus currentStatus;
 
     private void Awake()
     {
-        currentStatus = CharacterStatus.Idle;
         animator = GetComponent<Animator>();
         health = GetComponent<CharacterHealth>();
     }
@@ -34,11 +32,28 @@ public class CharacterAnimation : MonoBehaviour
 
     IEnumerator HurtEffectRoutine(float hurtTime)
     {
+        var statusMachine = GetComponent<CharacterStatusMachine>();
+
+        if(statusMachine != null)
+            statusMachine.ChangeStatus(CharacterStatus.Hurt);
+
+        animator.SetBool("isCasting", false);
+        animator.SetBool("isAttack", false);
+        AnimationEvent_EndSkill();
+
         GetComponent<CharacterMovement>().enabled = false;
         animator.SetBool("isHurt", true);
+        
         yield return new WaitForSeconds(hurtTime);
+
         animator.SetBool("isHurt", false);
         GetComponent<CharacterMovement>().enabled = true;
+
+        // 3. TRẢ TRẠNG THÁI LINH HOẠT: Sau khi hết đau, check xem có đang di chuyển không để về Move hoặc Idle
+        if (statusMachine != null && statusMachine.CurrentState == CharacterStatus.Hurt)
+        {
+            statusMachine.ChangeStatus(CharacterStatus.Idle);
+        }
     }
 
     private void PlayDead()
@@ -122,10 +137,6 @@ public class CharacterAnimation : MonoBehaviour
     public void FinishCast()
     {
         animator.SetBool("isCasting", false);
-        //if (animator.GetBool("isIdle"))
-        //{
-        //    GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Idle);
-        //}
     }
 
     public void ResetAnimation()

@@ -1,15 +1,21 @@
 using System;
+using TMPro;
 using UnityEngine;
 
 public abstract class SkillBase : MonoBehaviour, ISkill
 {
     [field: SerializeField] public SkillEnum SkillType { get; private set; }
 
+    [Header("Audio Settings")]
+    [SerializeField] protected AudioClip castSound;
+
     [Header("Skill Stats")]
     [SerializeField] protected int damage;
     [SerializeField] protected float coolDown;
     [SerializeField] protected float attackRange;
     [SerializeField] protected LayerMask targetLayer;
+    [field: SerializeField] public char KeySkill { get; protected set; }
+
     [field: SerializeField] public Sprite skillIcon { get; private set; }
 
     protected DamageData currentDamageData;
@@ -31,7 +37,6 @@ public abstract class SkillBase : MonoBehaviour, ISkill
     {
         animator = GetComponent<CharacterAnimation>();
         animator.SetCurrentSkill(this);
-        //Debug.Log(SkillType);
     }
 
     protected virtual void Start()
@@ -41,8 +46,6 @@ public abstract class SkillBase : MonoBehaviour, ISkill
 
     public virtual bool CanUse()
     {
-        //Debug.Log("Check " + SkillType + " at time " + Time.time);
-
         return (Time.time >= lastUseTime + coolDown && 
             GetComponent<CharacterStatusMachine>().CanCast);
     }
@@ -52,6 +55,9 @@ public abstract class SkillBase : MonoBehaviour, ISkill
         if (!CanUse()) return;
         currentDamageData = damageData;
         lastUseTime = Time.time;
+
+        if (castSound != null)
+            CombatEvents.OnSoundRequested?.Invoke(castSound);
         CombatEvents.OnPlayerSkillUsed?.Invoke(this);
     }
 

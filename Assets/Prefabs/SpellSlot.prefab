@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: J
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: e73a58f6e2794ae7b1b7e50b7fb811b0, type: 2}
@@ -672,11 +672,12 @@ MonoBehaviour:
   iconImage: {fileID: 6306280343926599261}
   highlight: {fileID: 4218465991285844273}
   spellText: {fileID: 4597767380893877433}
+  keyActive: {fileID: 2179480968083529184}
   cooldownOverlay: {fileID: 1933802047778297713}
   normalColor: {r: 0.7, g: 0.7, b: 0.7, a: 1}
   highlightColor: {r: 1, g: 1, b: 1, a: 1}
-  popScale: 1.3
-  popDuration: 0.2
+  popScale: 1.1
+  popDuration: 0.25
 --- !u!1 &6705159332245789324
 GameObject:
   m_ObjectHideFlags: 0

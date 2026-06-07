@@ -5,6 +5,12 @@ public class HealSkill : SkillBase
     [Header("Heal Variables")]
     public GameObject healFXPrefab;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        KeySkill = 'L'; // Khởi tạo đòn đánh thường mặc định là phím J (Dùng nháy đơn ' ' cho kiểu char)
+    }
+
     public override void Execute(DamageData damageData)
     {
         damageData.Damage = damage;
