@@ -6,19 +6,25 @@ public class BossBrain : MonoBehaviour
     [SerializeField] private SkillCaster skillCaster;
     [SerializeField] private CharacterMovement movement;
     [SerializeField] private BossMemory memory;
+    [SerializeField] private CharacterAnalyzer analyzer;
 
     [SerializeField] private Transform Player;
     private CharacterDetection characterDetection;
     private Vector2 PlayerDirection;
     private CharacterStatusMachine StatusMachine;
 
+    private CharacterStatus prevStatus;
+    private float TimeInStatus = 0;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        prevStatus = CharacterStatus.Idle;
+        analyzer = GetComponent<CharacterAnalyzer>();
         StatusMachine = GetComponent<CharacterStatusMachine>();
         skillCaster = GetComponent<SkillCaster>();
         movement = GetComponent<CharacterMovement>();
-        memory = GetComponent<BossMemory>();
+        memory = analyzer.GetBossMemory();
         characterDetection = GetComponent<CharacterDetection>();
     }
 
@@ -38,14 +44,28 @@ public class BossBrain : MonoBehaviour
             // Nếu đang bị thương, choáng hoặc đang ra chiêu, không làm gì cả
             if (currentStatus == CharacterStatus.Hurt ||
                 currentStatus == CharacterStatus.Stun ||
-                movement.GetAnimation().CheckStatus("isCasting") || 
-                movement.GetAnimation().CheckStatus("isAttack")) // Kiểm tra thông qua Animator hoặc Status
+                currentStatus == CharacterStatus.Attack || 
+                currentStatus == CharacterStatus.Cast) // Kiểm tra thông qua Animator hoặc Status
             {
                 Debug.Log("currentStatus: " + currentStatus);
                 movement.Move(Vector2.zero);
+
+                if(prevStatus == currentStatus)
+                {
+                    TimeInStatus += Time.deltaTime;
+                    if (TimeInStatus >= 0.5)
+                        goto ContinueThink;
+                }    
+                else
+                {
+                    TimeInStatus = 0;
+                    prevStatus = currentStatus;
+                }    
+                
                 return;
             }
 
+        ContinueThink:
             PlayerDirection = GetDirection();
             Debug.Log("Boss is thinking...");
             Think();
@@ -106,12 +126,14 @@ public class BossBrain : MonoBehaviour
         List<SkillBase> skills = skillCaster.GetSkills();
         float aggression = memory.GetAggressionLevel();
         float defensive = memory.GetDefensiveLevel();
+        float aoeAggression = memory.GetAOELevel();
 
         AIContext context = new AIContext
         (
             DistanceToPlayer: Vector2.Distance(transform.position, Player.position),
             BossHPPercent: movement.GetHealth().GetHealthPercent(),
             PlayerAggression: aggression,
+            PlayerAOEAgression: aoeAggression,
             PlayerDefense: defensive,
             Player: Player
         );
@@ -119,9 +141,6 @@ public class BossBrain : MonoBehaviour
         foreach (SkillBase skill in skills)
         {
             float score = skill.Evaluate(context);
-
-            //if (skill.SkillType == SkillEnum.Attack)
-            //    Debug.Log($"Evaluating {skill.SkillType}: Score = {score}, Cooldown = {skill.GetCooldown()}, CanUse = {skill.CanUse()}");
 
             if (score > bestScore)
             {

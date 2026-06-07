@@ -57,7 +57,7 @@ public class AOELightingSkill : SkillBase
         float score = 0;
 
         if (context.DistanceToPlayer <= 5.5f && base.CanUse())
-            score += 60;
+            score = 70 + context.PlayerDefense * 50;
 
         return score;
     }

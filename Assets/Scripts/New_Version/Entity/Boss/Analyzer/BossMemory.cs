@@ -45,12 +45,24 @@ public class BossMemory : MonoBehaviour
     public float GetAggressionLevel()
     {
         return PlayerAttackCount
-            / Mathf.Max(CombatTime, 1);
+            / Mathf.Max(CombatTime, 5);
     }
+
+    public float GetHealingLevel()
+    {
+        return PlayerHealCount
+            / Mathf.Max(CombatTime, 5);
+    }
+
+    public float GetAOELevel()
+    {
+        return PlayerAOECount
+            / Mathf.Max(CombatTime, 5);
+    }    
 
     public float GetDefensiveLevel()
     {
         return PlayerDashCount
-            / Mathf.Max(CombatTime, 1);
+            / Mathf.Max(CombatTime, 5);
     }
 }

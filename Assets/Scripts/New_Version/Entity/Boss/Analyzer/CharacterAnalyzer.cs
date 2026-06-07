@@ -4,6 +4,11 @@ public class CharacterAnalyzer : MonoBehaviour
 {
     [SerializeField] private BossMemory bossMemory;
 
+    public BossMemory GetBossMemory()
+    {
+        return bossMemory;
+    }
+
     private void Awake()
     {
         bossMemory = GetComponent<BossMemory>();
@@ -34,10 +39,10 @@ public class CharacterAnalyzer : MonoBehaviour
                 case SkillEnum.Heal: bossMemory.RegisterHeal(); break;
             }
 
-            //Debug.Log($"Melee: {bossMemory.PlayerAttackCount}, " +
-            //    $"AOE: {bossMemory.PlayerAOECount}, " +
-            //    $"Dash: {bossMemory.PlayerDashCount}, " +
-            //    $"Heal: {bossMemory.PlayerHealCount}");
+            Debug.Log($"Melee: {bossMemory.PlayerAttackCount}, " +
+                $"AOE: {bossMemory.PlayerAOECount}, " +
+                $"Dash: {bossMemory.PlayerDashCount}, " +
+                $"Heal: {bossMemory.PlayerHealCount}");
         }
     }
 }
