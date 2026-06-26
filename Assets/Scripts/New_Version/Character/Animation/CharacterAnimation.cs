@@ -42,14 +42,16 @@ public class CharacterAnimation : MonoBehaviour
         AnimationEvent_EndSkill();
 
         GetComponent<CharacterMovement>().enabled = false;
+        
         animator.SetBool("isHurt", true);
         
         yield return new WaitForSeconds(hurtTime);
 
         animator.SetBool("isHurt", false);
+        
         GetComponent<CharacterMovement>().enabled = true;
 
-        // 3. TRẢ TRẠNG THÁI LINH HOẠT: Sau khi hết đau, check xem có đang di chuyển không để về Move hoặc Idle
+        // Trả trạng thái về Idle nếu vẫn đang Hurt
         if (statusMachine != null && statusMachine.CurrentState == CharacterStatus.Hurt)
         {
             statusMachine.ChangeStatus(CharacterStatus.Idle);
@@ -152,7 +154,12 @@ public class CharacterAnimation : MonoBehaviour
 
     public void InterruptCurrentSkill()
     {
-        currentSkill = null;
+        if (currentSkill != null)
+        {
+            // ✨ Reset cooldown của skill bị interrupt
+            currentSkill.ResetCooldown();
+            currentSkill = null;
+        }
 
         animator.SetBool("isCasting", false);
         animator.SetBool("isAttack", false);

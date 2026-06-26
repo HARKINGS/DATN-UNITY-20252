@@ -33,6 +33,11 @@ public abstract class SkillBase : MonoBehaviour, ISkill
         return coolDown;
     }
 
+    public void ResetCooldown()
+    {
+        lastUseTime = Time.time - coolDown; // Cho phép dùng ngay
+    }
+
     protected virtual void Awake()
     {
         animator = GetComponent<CharacterAnimation>();

@@ -30,10 +30,12 @@ public class AOELightingSkill : SkillBase
 
         // Kiểm tra nếu lúc này Boss vẫn đang Cast thì mới trả về Idle (tránh đè lên trạng thái Hurt)
         var statusMachine = GetComponent<CharacterStatusMachine>();
+
+        animator.FinishCast(); // Tắt cờ isCasting trong Animator
+        
         if (statusMachine.CurrentState == CharacterStatus.Cast)
         {
-            animator.FinishCast(); // Tắt cờ isCasting trong Animator
-            statusMachine.ChangeStatus(CharacterStatus.Move); // Đưa logic về Move
+            statusMachine.ChangeStatus(CharacterStatus.Idle); // Đưa logic về Move
             Debug.Log("AOE Cast finished, returning to Move state.");
         }
     }
@@ -72,10 +74,45 @@ public class AOELightingSkill : SkillBase
 
     public override float Evaluate(AIContext context)
     {
+        if (!base.CanUse()) return 0;
+
+        float distance = context.DistanceToPlayer;
         float score = 0;
 
-        if (context.DistanceToPlayer <= 5.5f && base.CanUse())
-            score = 70 + context.PlayerDefense * 50;
+        // Base score: hiệu quả ở khoảng cách trung bình
+        if (distance <= 5.5f && distance >= 1.0f)
+        {
+            // Tối ưu ở khoảng cách 2-4f
+            if (distance >= 2f && distance <= 4f)
+                score = 70;
+            else
+                score = 50;
+        }
+        else
+        {
+            return 0; // Quá xa hoặc quá gần
+        }
+
+        // BONUS LỚN nếu Player defensive (hay dash, AOE bắt khu vực rộng)
+        score += context.PlayerDefense * 40;
+
+        // Bonus nếu Player aggressive (AOE punish khi Player lao vào)
+        score += context.PlayerAggression * 25;
+
+        // Bonus nếu Player hay dùng AOE (đáp trả bằng AOE)
+        score += context.PlayerAOEAgression * 30;
+
+        // Bonus nếu đầu trận (CombatTime < 15s) -> AOE surprise
+        if (context.CombatTime < 15f)
+            score += 20;
+
+        // ✨ PATTERN BONUS: Nếu Player đang burst (spam skill) -> AOE punish!
+        if (context.PlayerIsBursting)
+            score += 35;
+
+        // ✨ PATTERN BONUS: Nếu Player đang kite -> AOE bắt khu vực
+        if (context.PlayerIsKiting)
+            score += 30;
 
         return score;
     }

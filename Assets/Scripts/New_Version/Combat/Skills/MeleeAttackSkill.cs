@@ -24,19 +24,22 @@ public class MeleeAttackSkill : SkillBase
         animator.PlaySkill(this, "isAttack");
 
         // Khởi chạy Coroutine tự động dọn dẹp trạng thái sau khi chém xong (Ví dụ: chiêu kéo dài 0.3 giây)
-        //StartCoroutine(AutoResetAttackRoutine(0.5f));
+        StartCoroutine(AutoResetAttackRoutine(0.5f));
     }
 
     private IEnumerator AutoResetAttackRoutine(float duration)
     {
         yield return new WaitForSeconds(duration);
-
-        // Kiểm tra nếu lúc này Boss vẫn đang Attack thì mới trả về Idle (tránh đè lên trạng thái Hurt)
+    
         var statusMachine = GetComponent<CharacterStatusMachine>();
+        
+        // ✅ Luôn tắt animator flag (phòng trường hợp stuck)
+        animator.FinishAttack();
+        
+        // Chỉ đổi status nếu vẫn đang Attack (tránh đè lên Hurt/Idle)
         if (statusMachine.CurrentState == CharacterStatus.Attack)
         {
-            animator.FinishAttack(); // Tắt cờ isAttack trong Animator
-            statusMachine.ChangeStatus(CharacterStatus.Move); // Đưa logic về Move
+            statusMachine.ChangeStatus(CharacterStatus.Idle);
         }
     }
 
@@ -68,11 +71,32 @@ public class MeleeAttackSkill : SkillBase
 
     public override float Evaluate(AIContext context)
     {
-        //Debug.Log("Melee Can use: " + base.CanUse());
-        //Debug.Log("Distance To Player: " + context.DistanceToPlayer);
+        if (!base.CanUse()) return 0;
 
-        if (context.DistanceToPlayer <= 1.1f && base.CanUse())
-            return 90;
-        return 0;
+        float distance = context.DistanceToPlayer;
+        float score = 0;
+
+        // Base score dựa trên khoảng cách (chỉ hiệu quả ở cận chiến)
+        if (distance <= 1.5f)
+        {
+            // Khoảng cách càng gần, điểm càng cao (nhưng không quá cao)
+            score = 60 * (1.5f - distance) / 1.5f; // Max = 60 ở distance = 0
+        }
+        else
+        {
+            return 0; // Quá xa, không dùng melee
+        }
+
+        // Bonus nếu Player aggressive (đánh nhau cận chiến thì melee tốt)
+        score += context.PlayerAggression * 20;
+
+        // Penalty nếu Player defensive (hay dash, melee khó trúng)
+        score -= context.PlayerDefense * 15;
+
+        // Bonus nếu Boss HP cao (tự tin đấu cận)
+        if (context.BossHPPercent > 0.7f)
+            score += 15;
+
+        return Mathf.Max(score, 0);
     }
 }

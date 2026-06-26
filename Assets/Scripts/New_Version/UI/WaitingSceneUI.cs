@@ -17,6 +17,9 @@ public class WaitingSceneUI : MonoBehaviour
 
     private void Start()
     {
+        if (!waitingScenePanel.activeSelf) 
+            waitingScenePanel.SetActive(true);
+
         Time.timeScale = 0f;
         // Khởi động chuỗi đếm ngược ngay khi màn chơi bắt đầu
         StartCoroutine(CountdownRoutine());

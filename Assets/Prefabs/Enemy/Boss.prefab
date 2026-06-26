@@ -36,7 +36,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6920905172665878990
 Transform:
   m_ObjectHideFlags: 0
@@ -47,7 +47,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.04, y: 0.14, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6390414354595924102}
@@ -216,7 +216,7 @@ MonoBehaviour:
   <MoveSpeed>k__BackingField: 5
   <EffectTime>k__BackingField: 0.2
   <EffectForce>k__BackingField: 50
-  <EffectDuration>k__BackingField: 0.5
+  <EffectDuration>k__BackingField: 0.1
 --- !u!114 &4602794929443795527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245,6 +245,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8277baa18bc5f5448808f1771b4c007, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterHealth
+  damagedClip: {fileID: 8300000, guid: 45e3be027632ae7498aa4237b4aac851, type: 3}
   hitPoint: {fileID: 7601538219719429785}
 --- !u!114 &-4582736444236270873
 MonoBehaviour:
@@ -259,7 +260,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimation
   animator: {fileID: 7476741714790541940}
-  currentStatus: 0
 --- !u!114 &5078200501657828037
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,6 +325,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9acaef6b7b41bf845ad312659e316350, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SkillCaster
+  spellUIManager: {fileID: 0}
   skills:
   - {fileID: -8867101690260864332}
   - {fileID: -4630813015416262054}
@@ -343,12 +344,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AOELightingSkill
   <SkillType>k__BackingField: 3
+  castSound: {fileID: 8300000, guid: f2ecb38a92d7220479dd5ff5b6f4db5f, type: 3}
   damage: 2
   coolDown: 10
   attackRange: 5.5
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  <KeySkill>k__BackingField: 0
+  <skillIcon>k__BackingField: {fileID: 0}
   sparkFXPrefab: {fileID: 4524996498095965528, guid: 85440b87e7e34de4a8dca212ff860799, type: 3}
   borderLightFXPrefab: {fileID: 121690578996982696, guid: 6d4d86babb142fe4db3c63750760d8f4, type: 3}
 --- !u!114 &-4630813015416262054
@@ -364,12 +368,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DashSkill
   <SkillType>k__BackingField: 5
+  castSound: {fileID: 8300000, guid: 116f6e5a035002e4dbe57f1f692ae593, type: 3}
   damage: 0
   coolDown: 2
   attackRange: 0
   targetLayer:
     serializedVersion: 2
     m_Bits: 128
+  <KeySkill>k__BackingField: 0
+  <skillIcon>k__BackingField: {fileID: 0}
   dashSpace: 3
   dashEffectDuration: 0.5
   dashFXPrefab: {fileID: 2208436243143390426, guid: 4ad15f37e15067d4f91c663b295ac2ac, type: 3}
@@ -390,12 +397,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealSkill
   <SkillType>k__BackingField: 4
+  castSound: {fileID: 8300000, guid: 7da5136c79334fb4497a8bd0b84abfc6, type: 3}
   damage: 5
   coolDown: 5
   attackRange: 0
   targetLayer:
     serializedVersion: 2
     m_Bits: 128
+  <KeySkill>k__BackingField: 0
+  <skillIcon>k__BackingField: {fileID: 0}
   healFXPrefab: {fileID: 2791167030859915096, guid: c8e5180b932f71d4789286e96cb8b3d0, type: 3}
 --- !u!114 &-8867101690260864332
 MonoBehaviour:
@@ -410,12 +420,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeAttackSkill
   <SkillType>k__BackingField: 1
+  castSound: {fileID: 8300000, guid: 2d4a816de5fb29940a80a6d83f786e52, type: 3}
   damage: 1
   coolDown: 0.5
   attackRange: 0.8
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
+  <KeySkill>k__BackingField: 0
+  <skillIcon>k__BackingField: {fileID: 0}
   attackPoint: {fileID: 6390414354595924102}
 --- !u!114 &1841594070883913824
 MonoBehaviour:
@@ -432,7 +445,10 @@ MonoBehaviour:
   skillCaster: {fileID: 0}
   movement: {fileID: 0}
   memory: {fileID: 0}
+  analyzer: {fileID: 0}
   Player: {fileID: 0}
+  safeDistance: 4
+  retreatDistance: 0.8
 --- !u!114 &7565864974700348774
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -445,6 +461,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 347d4df46895a1b4ebabc296d2bf3226, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossMemory
+  shortTermWindow: 10
+  memoryDecayRate: 0.95
 --- !u!114 &4130782030379513908
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -471,6 +489,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EndGamePopup
   endGamePopup: {fileID: 0}
   endGameTitle: {fileID: 0}
+  restartButton: {fileID: 0}
+  mainMenuButton: {fileID: 0}
+  health: {fileID: 0}
 --- !u!1 &7362041864566483237
 GameObject:
   m_ObjectHideFlags: 0
@@ -538,7 +559,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 10
+  m_Radius: 21
 --- !u!1 &8443249233598712575
 GameObject:
   m_ObjectHideFlags: 0
