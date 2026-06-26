@@ -10,50 +10,44 @@ public class EndGamePopup : MonoBehaviour
     [SerializeField] private TMP_Text endGameTitle;
 
     [Header("Buttons")]
-    [SerializeField] private Button restartButton;    // Kéo thả component Button vào đây
-    [SerializeField] private Button mainMenuButton;   // Kéo thả component Button vào đây
-
-    [Header("Component")]
-    [SerializeField] private CharacterHealth health;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    private void Awake()
-    {
-        health = GetComponent<CharacterHealth>();
-    }
+    [SerializeField] private Button quitGameButton;
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button mainMenuButton;
 
     private void Start()
     {
-        // Giữ lại logic ẩn popup khi bắt đầu game
         if (endGamePopup != null)
             endGamePopup.SetActive(false);
     }
 
     private void OnEnable()
     {
-        if (health != null) health.OnDeath += ShowEndGamePopup;
+        // ĐĂNG KÝ LẮNG NGHE SỰ KIỆN TỪ VŨ TRỤ EVENT
+        CombatEvents.OnGameEnded += HandleGameEnd;
 
-        // Đăng ký sự kiện Click chuột bằng code khi popup active
         if (restartButton != null) restartButton.onClick.AddListener(RestartGame);
         if (mainMenuButton != null) mainMenuButton.onClick.AddListener(BackToMainMenu);
+        if (quitGameButton != null) mainMenuButton.onClick.AddListener(QuitGame);
     }
 
     private void OnDisable()
     {
-        if (health != null) health.OnDeath -= ShowEndGamePopup;
+        // HỦY ĐĂNG KÝ
+        CombatEvents.OnGameEnded -= HandleGameEnd;
 
-        // Hủy đăng ký để tránh rò rỉ bộ nhớ (Memory Leak)
         if (restartButton != null) restartButton.onClick.RemoveListener(RestartGame);
         if (mainMenuButton != null) mainMenuButton.onClick.RemoveListener(BackToMainMenu);
+        if (quitGameButton != null) mainMenuButton.onClick.RemoveListener(QuitGame);
     }
 
-    private void ShowEndGamePopup()
+    // Hàm nhận dữ liệu trực tiếp từ Sự kiện truyền về
+    private void HandleGameEnd(bool isPlayerWin)
     {
         if (endGamePopup == null) return;
         endGamePopup.SetActive(true);
-        if(gameObject.CompareTag("Player"))
-            endGameTitle.text = "You Died!";
-        else endGameTitle.text = "You Win!";
+
+        // Đọc thẳng kết quả từ biến truyền vào, không cần so sánh tag hay check máu
+        endGameTitle.text = isPlayerWin ? "You Win!" : "You Died!";
         Time.timeScale = 0;
     }
 
@@ -68,4 +62,9 @@ public class EndGamePopup : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene(0);
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }    
 }

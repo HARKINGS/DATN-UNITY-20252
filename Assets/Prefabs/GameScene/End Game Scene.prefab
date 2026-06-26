@@ -744,6 +744,7 @@ GameObject:
   - component: {fileID: 8130575156722665956}
   - component: {fileID: 976956866564237005}
   - component: {fileID: 5521706057114085182}
+  - component: {fileID: 7654318868016693137}
   m_Layer: 5
   m_Name: End Game Scene
   m_TagString: Untagged
@@ -835,6 +836,23 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &7654318868016693137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7866758581906677718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ca541e335d3a474fbb9d87f5d91cc25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EndGamePopup
+  endGamePopup: {fileID: 3994734170754399694}
+  endGameTitle: {fileID: 2289286950960744074}
+  quitGameButton: {fileID: 6542365220325106011}
+  restartButton: {fileID: 6269760647110228729}
+  mainMenuButton: {fileID: 8668804299157389976}
 --- !u!1 &8374817976664131579
 GameObject:
   m_ObjectHideFlags: 0

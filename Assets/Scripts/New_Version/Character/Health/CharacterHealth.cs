@@ -1,41 +1,31 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
-public class CharacterHealth : MonoBehaviour, IHealth
+public abstract class CharacterHealth : MonoBehaviour, IHealth
 {
     public AudioClip damagedClip;
-
     public Transform hitPoint;
-    private int CurrentHealth;
-    private CharacterStats stats;
+    
+    protected int CurrentHealth;
+    protected CharacterStats stats;
 
     public event Action<int> OnHealthChanged;
-    public event Action OnDeath;
+    public event Action OnDeath; // Giữ lại cho Animator nghe nếu cần
     public event Action OnHurt;
 
-    public float GetHealthPercent()
-    {
-        return (float)CurrentHealth / stats.MaxHealth;
-    }
+    public float GetHealthPercent() => (float)CurrentHealth / stats.MaxHealth;
+    public int GetCurrentHealth() => CurrentHealth;
 
-    public int GetCurrentHealth()
-    {
-        return CurrentHealth;
-    }    
-
-    private void Awake()
+    protected virtual void Awake()
     {
         stats = GetComponent<CharacterStats>();
         CurrentHealth = stats.MaxHealth;
         OnHealthChanged?.Invoke(CurrentHealth);
     }
 
-    public void ChangeHealth(DamageData damageData)
+    public virtual void ChangeHealth(DamageData damageData)
     {
-        //Debug.Log("Change Health: " + damageData.Damage);
         CurrentHealth -= damageData.Damage;
-        //Debug.Log(CurrentHealth);
 
         if (CurrentHealth > stats.MaxHealth)
             CurrentHealth = stats.MaxHealth;
@@ -52,18 +42,19 @@ public class CharacterHealth : MonoBehaviour, IHealth
         {
             CurrentHealth = 0;
             OnDeath?.Invoke();
+            HandleDeath(); // Gọi hàm xử lý cái chết đặc trưng của từng bên
         }
     }
 
-    public void Heal(DamageData damageData)
+    public virtual void Heal(DamageData damageData)
     {
-        //Debug.Log("Heal Health: " + damageData.Damage);
         CurrentHealth += damageData.Damage;
-        //Debug.Log(CurrentHealth);
-
         if (CurrentHealth > stats.MaxHealth)
             CurrentHealth = stats.MaxHealth;
 
         OnHealthChanged?.Invoke(CurrentHealth);
-    }    
+    }
+
+    // Hàm trừu tượng buộc các lớp con phải tự định nghĩa hành vi khi chết
+    protected abstract void HandleDeath();
 }

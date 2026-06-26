@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 5148363943040119721}
   - component: {fileID: 753968845950486991}
   - component: {fileID: 1967935974943901744}
+  - component: {fileID: 4302911230020931085}
   - component: {fileID: 4602794929443795527}
-  - component: {fileID: 8635384287308133439}
   - component: {fileID: -4582736444236270873}
   - component: {fileID: 5078200501657828037}
   - component: {fileID: 2579523382488138923}
@@ -29,14 +29,13 @@ GameObject:
   - component: {fileID: 1841594070883913824}
   - component: {fileID: 7565864974700348774}
   - component: {fileID: 4130782030379513908}
-  - component: {fileID: 309995231586938033}
   m_Layer: 7
   m_Name: Boss
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6920905172665878990
 Transform:
   m_ObjectHideFlags: 0
@@ -217,6 +216,20 @@ MonoBehaviour:
   <EffectTime>k__BackingField: 0.2
   <EffectForce>k__BackingField: 50
   <EffectDuration>k__BackingField: 0.1
+--- !u!114 &4302911230020931085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1167618663516176533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8853002d43fe56743851187534bcb61f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossHealth
+  damagedClip: {fileID: 8300000, guid: 45e3be027632ae7498aa4237b4aac851, type: 3}
+  hitPoint: {fileID: 7601538219719429785}
 --- !u!114 &4602794929443795527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -229,24 +242,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49d2d99426ddbb14dbbeb81269a899b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthBarUI
-  health: {fileID: 8635384287308133439}
+  health: {fileID: 0}
   healthText: {fileID: 0}
   healthTextAnim: {fileID: 0}
   hpRect: {fileID: 0}
---- !u!114 &8635384287308133439
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167618663516176533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8277baa18bc5f5448808f1771b4c007, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CharacterHealth
-  damagedClip: {fileID: 8300000, guid: 45e3be027632ae7498aa4237b4aac851, type: 3}
-  hitPoint: {fileID: 7601538219719429785}
 --- !u!114 &-4582736444236270873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -475,23 +474,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99392b1a02954224b91e8677096d1c01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CharacterStatusMachine
---- !u!114 &309995231586938033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167618663516176533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ca541e335d3a474fbb9d87f5d91cc25, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EndGamePopup
-  endGamePopup: {fileID: 0}
-  endGameTitle: {fileID: 0}
-  restartButton: {fileID: 0}
-  mainMenuButton: {fileID: 0}
-  health: {fileID: 0}
 --- !u!1 &7362041864566483237
 GameObject:
   m_ObjectHideFlags: 0

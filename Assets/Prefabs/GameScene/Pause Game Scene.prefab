@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1842213899168987945}
   - component: {fileID: 6269760647110228729}
   m_Layer: 5
-  m_Name: RestartBtn
+  m_Name: ResumeBtn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -186,7 +186,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Restart Game
+  m_text: Resume
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 36aef9e7fc836784d88188d4b890f969, type: 2}
   m_sharedMaterial: {fileID: -5009780026985936567, guid: 36aef9e7fc836784d88188d4b890f969, type: 2}
@@ -607,7 +607,7 @@ GameObject:
   - component: {fileID: 4929134952085445120}
   - component: {fileID: 2289286950960744074}
   m_Layer: 5
-  m_Name: NotifyEndGameTitle
+  m_Name: PauseGameTitle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -660,7 +660,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: You Lose
+  m_text: Pause Game
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 1c19ab0d4f6616b418025d848049fb66, type: 2}
   m_sharedMaterial: {fileID: 2315374888948667431, guid: 1c19ab0d4f6616b418025d848049fb66, type: 2}
@@ -744,6 +744,7 @@ GameObject:
   - component: {fileID: 8130575156722665956}
   - component: {fileID: 976956866564237005}
   - component: {fileID: 5521706057114085182}
+  - component: {fileID: 3026303607936871235}
   m_Layer: 5
   m_Name: Pause Game Scene
   m_TagString: Untagged
@@ -835,6 +836,39 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &3026303607936871235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7866758581906677718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: beab87eb6674eb742adedc34ae2017d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PauseGamePopup
+  pauseGamePopup: {fileID: 3994734170754399694}
+  resumeButton: {fileID: 6269760647110228729}
+  mainMenuButton: {fileID: 8668804299157389976}
+  quitGameButton: {fileID: 6542365220325106011}
+  PauseGameAction:
+    m_Name: Pause Game
+    m_Type: 0
+    m_ExpectedControlType: 
+    m_Id: f26dff07-b9c8-4448-8a2d-b6c06825c121
+    m_Processors: 
+    m_Interactions: 
+    m_SingletonActionBindings:
+    - m_Name: 
+      m_Id: 1c03dc90-74c4-482d-ad8d-12c43a59f6c4
+      m_Path: <Keyboard>/tab
+      m_Interactions: 
+      m_Processors: 
+      m_Groups: 
+      m_Action: Pause Game
+      m_Flags: 0
+    m_Flags: 0
 --- !u!1 &8374817976664131579
 GameObject:
   m_ObjectHideFlags: 0
