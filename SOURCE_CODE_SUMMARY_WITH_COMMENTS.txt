@@ -1,0 +1,2190 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BossMemory : MonoBehaviour
+{
+    // === RAW DATA ===
+    public int PlayerAttackCount { get; private set; }
+    public int PlayerDashCount { get; private set; }
+    public int PlayerHealCount { get; private set; }
+    public int PlayerAOECount { get; private set; }
+    public float CombatTime { get; private set; }
+
+    // === SMART MEMORY (Time-windowed tracking) ===
+    [Header("Memory Settings")]
+    [SerializeField] private float shortTermWindow = 10f; // Nhớ 10 giây gần nhất
+    [SerializeField] private float memoryDecayRate = 0.95f; // Độ suy giảm memory (0.95 = giữ 95% mỗi giây)
+    
+    private Queue<ActionRecord> recentActions = new Queue<ActionRecord>();
+    private Dictionary<SkillEnum, int> shortTermCounts = new Dictionary<SkillEnum, int>();
+    
+    // === PATTERN DETECTION ===
+    private float lastActionTime = 0f;
+    private float burstThreshold = 0.3f; // 3 skill trong 0.3s = burst
+    private int burstCounter = 0;
+    private bool isBursting = false;
+
+    // === WEIGHTED METRICS (hành vi gần đây quan trọng hơn) ===
+    private float weightedAttackScore = 0f;
+    private float weightedDashScore = 0f;
+    private float weightedHealScore = 0f;
+    private float weightedAOEScore = 0f;
+
+    private struct ActionRecord
+    {
+        public SkillEnum skillType;
+        public float timestamp;
+        
+        public ActionRecord(SkillEnum type, float time)
+        {
+            skillType = type;
+            timestamp = time;
+        }
+    }
+
+    private void Awake()
+    {
+        // Initialize short-term tracking
+        shortTermCounts[SkillEnum.Attack] = 0;
+        shortTermCounts[SkillEnum.Dash] = 0;
+        shortTermCounts[SkillEnum.Heal] = 0;
+        shortTermCounts[SkillEnum.AOE] = 0;
+    }
+
+    private void Update()
+    {
+        if (!WaitingSceneUI.IsBattleStarted) return;
+        
+        CombatTime += Time.deltaTime;
+        
+        // Decay weighted scores over time (hành vi cũ dần mất tác động)
+        float decayFactor = Mathf.Pow(memoryDecayRate, Time.deltaTime);
+        weightedAttackScore *= decayFactor;
+        weightedDashScore *= decayFactor;
+        weightedHealScore *= decayFactor;
+        weightedAOEScore *= decayFactor;
+        
+        // Clean up old actions outside time window
+        CleanupOldActions();
+        
+        // Reset burst if too long since last action
+        if (Time.time - lastActionTime > burstThreshold * 2)
+        {
+            burstCounter = 0;
+            isBursting = false;
+        }
+    }
+
+    // === REGISTER ACTIONS ===
+    public void RegisterAttack()
+    {
+        PlayerAttackCount++;
+        RecordAction(SkillEnum.Attack);
+        weightedAttackScore += 1.0f;
+    }
+
+    public void RegisterDash()
+    {
+        PlayerDashCount++;
+        RecordAction(SkillEnum.Dash);
+        weightedDashScore += 1.0f;
+    }
+
+    public void RegisterHeal()
+    {
+        PlayerHealCount++;
+        RecordAction(SkillEnum.Heal);
+        weightedHealScore += 1.0f;
+    }
+
+    public void RegisterAOE()
+    {
+        PlayerAOECount++;
+        RecordAction(SkillEnum.AOE);
+        weightedAOEScore += 1.0f;
+    }
+
+    private void RecordAction(SkillEnum skillType)
+    {
+        float currentTime = Time.time;
+        
+        // Add to recent actions queue
+        recentActions.Enqueue(new ActionRecord(skillType, currentTime));
+        
+        // Update short-term counts
+        if (shortTermCounts.ContainsKey(skillType))
+            shortTermCounts[skillType]++;
+        
+        // Burst detection
+        if (currentTime - lastActionTime < burstThreshold)
+        {
+            burstCounter++;
+            if (burstCounter >= 3)
+                isBursting = true;
+        }
+        else
+        {
+            burstCounter = 1;
+            isBursting = false;
+        }
+        
+        lastActionTime = currentTime;
+    }
+
+    private void CleanupOldActions()
+    {
+        float cutoffTime = Time.time - shortTermWindow;
+        
+        while (recentActions.Count > 0 && recentActions.Peek().timestamp < cutoffTime)
+        {
+            ActionRecord old = recentActions.Dequeue();
+            if (shortTermCounts.ContainsKey(old.skillType))
+                shortTermCounts[old.skillType]--;
+        }
+    }
+
+    // === SMART METRICS (Normalized [0, 1]) ===
+    
+    /// <summary>
+    /// Aggression = % của Attack trong tổng hành động tấn công (Attack + AOE)
+    /// Normalize bằng sigmoid để smooth
+    /// </summary>
+    public float GetAggressionLevel()
+    {
+        int totalActions = GetTotalActions();
+        if (totalActions < 3) return 0.5f; // Chưa đủ data, trả về neutral
+        
+        // Tính % của Attack trong tổng offensive actions
+        int offensiveActions = PlayerAttackCount + PlayerAOECount;
+        if (offensiveActions == 0) return 0f;
+        
+        float attackRatio = (float)PlayerAttackCount / offensiveActions;
+        
+        // Bonus nếu attack frequency cao (tấn công liên tục)
+        float attackFrequency = weightedAttackScore / Mathf.Max(CombatTime, 5f);
+        
+        // Combine ratio + frequency
+        float aggression = attackRatio * 0.6f + Mathf.Clamp01(attackFrequency) * 0.4f;
+        
+        // Normalize bằng sigmoid để smooth [0, 1]
+        return Sigmoid(aggression * 2 - 1); // Map [0,1] -> [-1,1] -> sigmoid
+    }
+
+    /// <summary>
+    /// Defensive = % của Dash trong tổng hành động
+    /// </summary>
+    public float GetDefensiveLevel()
+    {
+        int totalActions = GetTotalActions();
+        if (totalActions < 3) return 0.3f; // Default medium defensive
+        
+        // % Dash trong tổng hành động
+        float dashRatio = (float)PlayerDashCount / totalActions;
+        
+        // Bonus nếu dash trong short-term window cao (đang kite)
+        int shortTermTotal = GetShortTermTotalActions();
+        float shortTermDashRatio = shortTermTotal > 0 ? 
+            (float)shortTermCounts[SkillEnum.Dash] / shortTermTotal : 0f;
+        
+        // Recent behavior quan trọng hơn
+        float defensive = dashRatio * 0.4f + shortTermDashRatio * 0.6f;
+        
+        return Mathf.Clamp01(defensive * 2); // Amplify và clamp
+    }
+
+    /// <summary>
+    /// AOE Level = Tần suất dùng AOE + xét tỷ lệ với total actions
+    /// </summary>
+    public float GetAOELevel()
+    {
+        int totalActions = GetTotalActions();
+        if (totalActions < 3) return 0.2f;
+        
+        // % AOE trong tổng hành động
+        float aoeRatio = (float)PlayerAOECount / totalActions;
+        
+        // Frequency (skill/second)
+        float aoeFrequency = weightedAOEScore / Mathf.Max(CombatTime, 5f);
+        
+        // Combine
+        float aoeLevel = aoeRatio * 0.5f + Mathf.Clamp01(aoeFrequency * 2) * 0.5f;
+        
+        return Mathf.Clamp01(aoeLevel * 1.5f); // Amplify
+    }
+
+    /// <summary>
+    /// Healing Level = Tần suất heal (quan trọng vì heal ít nhưng impact cao)
+    /// </summary>
+    public float GetHealingLevel()
+    {
+        if (CombatTime < 5f) return 0f; // Chưa đủ thời gian đánh giá
+        
+        // Mỗi lần heal có trọng số cao
+        float healFrequency = weightedHealScore / Mathf.Max(CombatTime, 10f);
+        
+        // Normalize: 1 heal mỗi 10s = 0.5, 1 heal mỗi 5s = 1.0
+        return Mathf.Clamp01(healFrequency * 10f);
+    }
+
+    // === PATTERN DETECTION ===
+    
+    /// <summary>
+    /// Phát hiện Player đang burst (spam skill liên tục)
+    /// </summary>
+    public bool IsBursting()
+    {
+        return isBursting;
+    }
+
+    /// <summary>
+    /// Phát hiện Player đang kite (dash nhiều + giữ khoảng cách)
+    /// </summary>
+    public bool IsKiting()
+    {
+        // Kite = Dash chiếm > 40% hành động gần đây
+        int shortTermTotal = GetShortTermTotalActions();
+        if (shortTermTotal < 5) return false;
+        
+        float recentDashRatio = (float)shortTermCounts[SkillEnum.Dash] / shortTermTotal;
+        return recentDashRatio > 0.4f;
+    }
+
+    /// <summary>
+    /// Phát hiện Player đang hit & run (Attack + Dash xen kẽ)
+    /// </summary>
+    public bool IsHitAndRun()
+    {
+        int shortTermTotal = GetShortTermTotalActions();
+        if (shortTermTotal < 6) return false;
+        
+        int attacks = shortTermCounts[SkillEnum.Attack];
+        int dashes = shortTermCounts[SkillEnum.Dash];
+        
+        // Hit & Run = Attack và Dash đều có, tỷ lệ gần nhau
+        return attacks >= 2 && dashes >= 2 && Mathf.Abs(attacks - dashes) <= 2;
+    }
+
+    // === UTILITY ===
+    
+    private int GetTotalActions()
+    {
+        return PlayerAttackCount + PlayerDashCount + PlayerHealCount + PlayerAOECount;
+    }
+
+    private int GetShortTermTotalActions()
+    {
+        int total = 0;
+        foreach (var count in shortTermCounts.Values)
+            total += count;
+        return total;
+    }
+
+    private float Sigmoid(float x)
+    {
+        return 1f / (1f + Mathf.Exp(-x));
+    }
+
+    // === DEBUG ===
+    public void LogMemoryState()
+    {
+        Debug.Log($"[Memory] Total: {GetTotalActions()} | Aggression: {GetAggressionLevel():F2} | " +
+                  $"Defensive: {GetDefensiveLevel():F2} | AOE: {GetAOELevel():F2} | " +
+                  $"Heal: {GetHealingLevel():F2} | Burst: {IsBursting()} | Kite: {IsKiting()}");
+    }
+}
+using UnityEngine;
+
+public class CharacterAnalyzer : MonoBehaviour
+{
+    [SerializeField] private BossMemory bossMemory;
+
+    public BossMemory GetBossMemory()
+    {
+        return bossMemory;
+    }
+
+    private void Awake()
+    {
+        bossMemory = GetComponent<BossMemory>();
+    }
+
+    private void OnEnable()
+    {
+        CombatEvents.OnPlayerSkillUsed += AnalyzeSkill;
+    }
+
+    private void OnDisable()
+    {
+        CombatEvents.OnPlayerSkillUsed -= AnalyzeSkill;
+    }
+
+    private void AnalyzeSkill(SkillBase skill)
+    {   
+        //Debug.Log("Analyzing skill: " + skill.SkillType);
+        //Debug.Log("Attacker: " + skill.GetAttacker().name + " with tag: " + skill.GetAttacker().tag);
+
+        if (skill.GetAttacker().tag == "Player")
+        {
+            switch (skill.SkillType)
+            {
+                case SkillEnum.Attack: bossMemory.RegisterAttack(); break;
+                case SkillEnum.AOE: bossMemory.RegisterAOE(); break;
+                case SkillEnum.Dash: bossMemory.RegisterDash(); break;
+                case SkillEnum.Heal: bossMemory.RegisterHeal(); break;
+            }
+
+            Debug.Log($"Melee: {bossMemory.PlayerAttackCount}, " +
+                $"AOE: {bossMemory.PlayerAOECount}, " +
+                $"Dash: {bossMemory.PlayerDashCount}, " +
+                $"Heal: {bossMemory.PlayerHealCount}");
+        }
+    }
+}
+using UnityEngine;
+
+public class AIContext
+{
+    public float DistanceToPlayer;
+
+    public float BossHPPercent;
+
+    public float PlayerAggression;
+
+    public float PlayerAOEAgression;
+
+    public float PlayerDefense;
+
+    public float PlayerHealFrequency;
+
+    public Transform Player;
+
+    public float CombatTime;
+
+    // Pattern flags
+    public bool PlayerIsBursting;
+    public bool PlayerIsKiting;
+    public bool PlayerIsHitAndRun;
+
+    public AIContext(
+        float DistanceToPlayer, 
+        float BossHPPercent, 
+        float PlayerAggression, 
+        float PlayerAOEAgression, 
+        float PlayerDefense, 
+        float PlayerHealFrequency, 
+        Transform Player, 
+        float CombatTime,
+        bool PlayerIsBursting = false,
+        bool PlayerIsKiting = false,
+        bool PlayerIsHitAndRun = false)
+    {
+        this.DistanceToPlayer = DistanceToPlayer;
+        this.BossHPPercent = BossHPPercent;
+        this.PlayerAggression = PlayerAggression;
+        this.PlayerAOEAgression = PlayerAOEAgression;
+        this.PlayerDefense = PlayerDefense;
+        this.PlayerHealFrequency = PlayerHealFrequency;
+        this.Player = Player;
+        this.CombatTime = CombatTime;
+        this.PlayerIsBursting = PlayerIsBursting;
+        this.PlayerIsKiting = PlayerIsKiting;
+        this.PlayerIsHitAndRun = PlayerIsHitAndRun;
+    }
+}
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BossBrain : MonoBehaviour
+{
+    [SerializeField] private SkillCaster skillCaster;
+    [SerializeField] private CharacterMovement movement;
+    [SerializeField] private BossMemory memory;
+    [SerializeField] private CharacterAnalyzer analyzer;
+
+    [SerializeField] private Transform Player;
+    private CharacterDetection characterDetection;
+    private Vector2 PlayerDirection;
+    private CharacterStatusMachine StatusMachine;
+
+    // Movement Strategy
+    [Header("Movement Settings")]
+    [SerializeField] private float safeDistance = 4.0f; // Khoảng cách an toàn
+    [SerializeField] private float retreatDistance = 0.8f; // Khoảng cách quá gần cần lùi
+    
+    
+    // Circle movement state
+    private Vector2 currentCircleDirection;
+    private float circleDirectionChangeTime = 0f;
+    private float circleDirectionDuration = 2f; // Giữ hướng vòng 2 giây trước khi đổi
+
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private void Start()
+    {
+        analyzer = GetComponent<CharacterAnalyzer>();
+        StatusMachine = GetComponent<CharacterStatusMachine>();
+        skillCaster = GetComponent<SkillCaster>();
+        movement = GetComponent<CharacterMovement>();
+        memory = analyzer.GetBossMemory();
+        characterDetection = GetComponent<CharacterDetection>();
+        
+        // Initialize circle direction
+        currentCircleDirection = Vector2.right;
+    }
+
+    // Update is called once per frame
+    private void Update()
+    {
+        if (!WaitingSceneUI.IsBattleStarted)
+        {
+            movement.Move(Vector2.zero);
+            return;
+        }
+
+        if (CheckCharacter() != null)
+        {
+            CharacterStatus currentStatus = StatusMachine.CurrentState;
+
+            // ✅ ROLLBACK: Block movement khi Hurt/Stun (do CharacterMovement đã disable)
+            bool isExecutingSkill = movement.GetAnimation().CheckStatus("isCasting") || 
+                                   movement.GetAnimation().CheckStatus("isAttack");
+            
+            bool cannotMove = isExecutingSkill || 
+                             currentStatus == CharacterStatus.Hurt || 
+                             currentStatus == CharacterStatus.Stun;
+
+            if (cannotMove)
+            {
+                // Dừng di chuyển khi đang cast skill hoặc bị knockback
+                movement.Move(Vector2.zero);
+                return;
+            }
+
+            PlayerDirection = GetDirection();
+            
+            // AI Think - chọn skill
+            Think();
+
+            // Movement Strategy - di chuyển thông minh
+            Vector2 moveDirection = DecideMovement();
+            movement.Move(moveDirection);
+        }
+        else
+        {
+            movement.Move(Vector2.zero);
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Player"))
+        {
+            // 1. Đưa trạng thái Logic về Idle
+            StatusMachine.ChangeStatus(CharacterStatus.Idle);
+
+            // 2. QUAN TRỌNG: Đưa trạng thái hình ảnh (Animator) về an toàn
+            CharacterAnimation bossAnim = movement.GetAnimation();
+            if (bossAnim != null)
+            {
+                bossAnim.ResetAnimation();
+                bossAnim.AnimationEvent_EndSkill(); // Xóa skill đang cast dở
+                bossAnim.FinishCast();              // Tắt isCasting
+                bossAnim.FinishAttack();            // Tắt isAttack
+            }
+
+            // 3. Đưa vận tốc vật lý về 0 ngay lập tức
+            movement.Move(Vector2.zero);
+        }
+    }
+
+    private Vector2 GetDirection()
+    {
+        return (Player.position - transform.position).normalized;
+    }
+
+    private Transform CheckCharacter()
+    {
+        Collider2D[] hits = characterDetection.DetectCharacter();
+        if (hits.Length > 0)
+            return Player = hits[0].transform;
+        return Player = null;
+    }
+
+    private void Think()
+    {
+        CharacterStatus currentStatus = StatusMachine.CurrentState;
+
+        if (currentStatus == CharacterStatus.Hurt || currentStatus == CharacterStatus.Stun)
+            return;
+
+        SkillBase bestSkill = null;
+        float bestScore = -1;
+
+        List<SkillBase> skills = skillCaster.GetSkills();
+        float aggression = memory.GetAggressionLevel();
+        float defensive = memory.GetDefensiveLevel();
+        float aoeAggression = memory.GetAOELevel();
+        float healFrequency = memory.GetHealingLevel();
+
+        AIContext context = new AIContext
+        (
+            DistanceToPlayer: Vector2.Distance(transform.position, Player.position),
+            BossHPPercent: movement.GetHealth().GetHealthPercent(),
+            PlayerAggression: aggression,
+            PlayerAOEAgression: aoeAggression,
+            PlayerDefense: defensive,
+            PlayerHealFrequency: healFrequency,
+            Player: Player,
+            CombatTime: memory.CombatTime,
+            PlayerIsBursting: memory.IsBursting(),
+            PlayerIsKiting: memory.IsKiting(),
+            PlayerIsHitAndRun: memory.IsHitAndRun()
+        );
+
+        // Debug patterns
+        if (context.PlayerIsBursting || context.PlayerIsKiting || context.PlayerIsHitAndRun)
+        {
+            Debug.Log($"[AI Pattern] Burst: {context.PlayerIsBursting} | Kite: {context.PlayerIsKiting} | Hit&Run: {context.PlayerIsHitAndRun}");
+        }
+
+        // Đánh giá từng skill
+        foreach (SkillBase skill in skills)
+        {
+            float score = skill.Evaluate(context);
+
+            // Debug log để kiểm tra
+            if (score > 0)
+            {
+                Debug.Log($"[AI] {skill.SkillType}: Score = {score:F1} | Distance = {context.DistanceToPlayer:F1}");
+            }
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestSkill = skill;
+            }
+        }
+
+        if (bestSkill == null || bestScore <= 0f)
+        {
+            Debug.Log("[AI] Không tìm được skill phù hợp hoặc đang cooldown.");
+            return;
+        }
+
+        // Thực thi skill tốt nhất
+        Debug.Log($"[AI] ✓ Executing: {bestSkill.SkillType} (Score: {bestScore:F1})");
+        skillCaster.Execute(bestSkill.SkillType);
+    }
+
+    // Movement Strategy - Di chuyển thông minh dựa trên context
+    private Vector2 DecideMovement()
+    {
+        float distance = Vector2.Distance(transform.position, Player.position);
+        float aggression = memory.GetAggressionLevel();
+        float bossHP = movement.GetHealth().GetHealthPercent();
+
+        // PRIORITY 1: Boss HP thấp (<40%) → RETREAT (Lùi ra xa để heal)
+        if (bossHP < 0.4f)
+        {
+            if (distance < safeDistance)
+            {
+                // Lùi thẳng ra xa Player
+                Debug.Log($"[Movement] RETREAT | Distance: {distance:F1} < {safeDistance} | HP: {bossHP:P0}");
+                return -PlayerDirection; // Full speed lùi
+            }
+            else
+            {
+                // Đã đủ xa, kite để chờ cooldown heal
+                return GetCircleMovement();
+            }
+        }
+
+        // PRIORITY 3: Player rất aggressive + đang ở gần → CIRCLE KITE
+        if (aggression > 0.5f && distance < 3f)
+        {
+            Debug.Log($"[Movement] CIRCLE KITE | Aggression: {aggression:F2} | Distance: {distance:F1}");
+            return GetCircleMovement();
+        }
+
+        // PRIORITY 4: Quá gần (<0.8f) → LÙI NHẸ (tránh bị dồn vào góc)
+        if (distance < retreatDistance)
+        {
+            Debug.Log($"[Movement] RETREAT LIGHT | Distance: {distance:F1} < {retreatDistance}");
+            return -PlayerDirection * 0.7f; // Lùi chậm
+        }
+
+        // PRIORITY 5: Khoảng cách optimal (0.9f - 1.5f) → DỪNG LẠI (để attack)
+        if (distance >= 0.9f && distance <= 1.5f)
+        {
+            return Vector2.zero; // Dừng để skill execute
+        }
+
+        // PRIORITY 6: Quá xa (>1.5f) → TIẾN VÀO
+        if (distance > 1.5f)
+        {
+            return PlayerDirection; // Full speed tiến
+        }
+
+        // Default: đứng yên
+        return Vector2.zero;
+    }
+
+    // Di chuyển vòng quanh Player - CỐ ĐỊNH HƯỚNG trong thời gian dài
+    private Vector2 GetCircleMovement()
+    {
+        // Chỉ đổi hướng sau mỗi 2 giây
+        if (Time.time - circleDirectionChangeTime > circleDirectionDuration)
+        {
+            // Vector vuông góc với direction tới Player
+            Vector2 perpendicular = new Vector2(-PlayerDirection.y, PlayerDirection.x);
+            
+            // Random trái hoặc phải MỘT LẦN
+            if (Random.value > 0.5f)
+                perpendicular = -perpendicular;
+            
+            // Lưu hướng mới
+            currentCircleDirection = perpendicular;
+            circleDirectionChangeTime = Time.time;
+            
+            Debug.Log($"[Movement] Circle direction changed: {currentCircleDirection}");
+        }
+        
+        // Mix giữa di chuyển vòng (70%) và tiến vào (30%) để không đi xa quá
+        Vector2 finalDirection = (currentCircleDirection * 0.7f + PlayerDirection * 0.3f).normalized;
+        
+        return finalDirection;
+    }
+}
+using System.Collections;
+using UnityEngine;
+
+public class CharacterAnimation : MonoBehaviour
+{
+    [SerializeField] private Animator animator;
+    private CharacterHealth health;
+    private SkillBase currentSkill;
+
+    private void Awake()
+    {
+        animator = GetComponent<Animator>();
+        health = GetComponent<CharacterHealth>();
+    }
+
+    private void OnEnable()
+    {
+        health.OnHurt += PlayHurt;
+        health.OnDeath += PlayDead;
+    }
+
+    private void OnDisable()
+    {
+        health.OnHurt -= PlayHurt;
+        health.OnDeath -= PlayDead;
+    }
+
+    private void PlayHurt()
+    {
+        StartCoroutine(HurtEffectRoutine(0.25f));
+    }
+
+    IEnumerator HurtEffectRoutine(float hurtTime)
+    {
+        var statusMachine = GetComponent<CharacterStatusMachine>();
+
+        if(statusMachine != null)
+            statusMachine.ChangeStatus(CharacterStatus.Hurt);
+
+        animator.SetBool("isCasting", false);
+        animator.SetBool("isAttack", false);
+        AnimationEvent_EndSkill();
+
+        GetComponent<CharacterMovement>().enabled = false;
+        
+        animator.SetBool("isHurt", true);
+        
+        yield return new WaitForSeconds(hurtTime);
+
+        animator.SetBool("isHurt", false);
+        
+        GetComponent<CharacterMovement>().enabled = true;
+
+        // Trả trạng thái về Idle nếu vẫn đang Hurt
+        if (statusMachine != null && statusMachine.CurrentState == CharacterStatus.Hurt)
+        {
+            statusMachine.ChangeStatus(CharacterStatus.Idle);
+        }
+    }
+
+    private void PlayDead()
+    {
+        StartCoroutine(DeathRoutine(1.5f));
+    }
+
+    IEnumerator DeathRoutine(float deadTime)
+    {
+        animator.SetBool("isDead", true);
+
+        // Vô hiệu hóa các script điều khiển và va chạm để tránh lỗi logic khi đang chết
+        GetComponent<CharacterMovement>().enabled = false;
+
+        // Đợi thời gian anim chết chạy (ví dụ 2 giây)
+        yield return new WaitForSeconds(deadTime);
+        Destroy(gameObject);
+    }
+
+    public bool CheckStatus(string Flag)
+    {
+        return animator.GetBool(Flag);
+    }
+
+    public bool CheckCast()
+    {
+        return animator.GetBool("isCasting");
+    }
+
+    public void PlaySkill(SkillBase skill, string flag)
+    {
+        SetCurrentSkill(skill);
+        animator.SetBool(flag, true);
+    }
+
+    public void SetCurrentSkill(SkillBase skill)
+    {
+        currentSkill = skill;
+    }
+
+    // Animation Event
+    public void AnimationEvent_ApplySkill()
+    {
+        //Debug.Log("Apply_Effect");
+        currentSkill?.ApplyEffect();
+    }
+
+    // Animation Event
+    public void AnimationEvent_EndSkill()
+    {
+        currentSkill = null;
+    }
+
+    public void SetMove(Vector2 move)
+    {
+        animator.SetFloat("horizontal", Mathf.Abs(move.x));
+        animator.SetFloat("vertical", Mathf.Abs(move.y));
+
+        if (move.x == 0 && move.y == 0)
+        {
+            if(GetComponent<CharacterStatusMachine>().CanCast)
+                GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Idle);
+            animator.SetBool("isIdle", true);
+        }
+        else
+        {
+            GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Move);
+            animator.SetBool("isIdle", false);
+        }
+    }
+
+    public void FinishAttack()
+    {
+        animator.SetBool("isAttack", false);
+        if(animator.GetBool("isIdle"))
+        {
+            GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Idle);
+        }
+    }
+
+    public void FinishCast()
+    {
+        animator.SetBool("isCasting", false);
+    }
+
+    public void ResetAnimation()
+    {
+        foreach (AnimatorControllerParameter param in animator.parameters)
+        {
+            if (param.type == AnimatorControllerParameterType.Bool)
+                animator.SetBool(param.name, false);
+            if (param.type == AnimatorControllerParameterType.Float)
+                animator.SetFloat(param.name, 0);
+        }
+    }
+
+    public void InterruptCurrentSkill()
+    {
+        if (currentSkill != null)
+        {
+            // ✨ Reset cooldown của skill bị interrupt
+            currentSkill.ResetCooldown();
+            currentSkill = null;
+        }
+
+        animator.SetBool("isCasting", false);
+        animator.SetBool("isAttack", false);
+    }
+}
+using UnityEngine;
+
+public class BossHealth : CharacterHealth
+{
+    protected override void HandleDeath()
+    {
+        Debug.Log("Boss đã bị hạ gục!");
+
+        // Phát sự kiện toàn cục: Trận đấu kết thúc, Player Win = true
+        CombatEvents.OnGameEnded?.Invoke(true);
+    }
+}
+using System;
+using UnityEngine;
+
+public abstract class CharacterHealth : MonoBehaviour, IHealth
+{
+    public AudioClip damagedClip;
+    public Transform hitPoint;
+    
+    protected int CurrentHealth;
+    protected CharacterStats stats;
+
+    public event Action<int> OnHealthChanged;
+    public event Action OnDeath; // Giữ lại cho Animator nghe nếu cần
+    public event Action OnHurt;
+
+    public float GetHealthPercent() => (float)CurrentHealth / stats.MaxHealth;
+    public int GetCurrentHealth() => CurrentHealth;
+
+    protected virtual void Awake()
+    {
+        stats = GetComponent<CharacterStats>();
+        CurrentHealth = stats.MaxHealth;
+        OnHealthChanged?.Invoke(CurrentHealth);
+    }
+
+    public virtual void ChangeHealth(DamageData damageData)
+    {
+        CurrentHealth -= damageData.Damage;
+
+        if (CurrentHealth > stats.MaxHealth)
+            CurrentHealth = stats.MaxHealth;
+
+        OnHealthChanged?.Invoke(CurrentHealth);
+
+        if (CurrentHealth > 0)
+        {
+            if (damagedClip != null && damageData.Damage > 0)
+                CombatEvents.OnSoundRequested?.Invoke(damagedClip);
+            OnHurt?.Invoke();
+        }
+        else
+        {
+            CurrentHealth = 0;
+            OnDeath?.Invoke();
+            HandleDeath(); // Gọi hàm xử lý cái chết đặc trưng của từng bên
+        }
+    }
+
+    public virtual void Heal(DamageData damageData)
+    {
+        CurrentHealth += damageData.Damage;
+        if (CurrentHealth > stats.MaxHealth)
+            CurrentHealth = stats.MaxHealth;
+
+        OnHealthChanged?.Invoke(CurrentHealth);
+    }
+
+    // Hàm trừu tượng buộc các lớp con phải tự định nghĩa hành vi khi chết
+    protected abstract void HandleDeath();
+}
+using UnityEngine;
+
+public class PlayerHealth : CharacterHealth
+{
+    protected override void HandleDeath()
+    {
+        Debug.Log("Player đã cạn máu!");
+
+        // Phát sự kiện toàn cục: Trận đấu kết thúc, Player Win = false
+        CombatEvents.OnGameEnded?.Invoke(false);
+    }
+}
+using UnityEngine;
+
+public class CharacterStats : MonoBehaviour
+{
+    [field: SerializeField] public int MaxHealth { get; private set; } = 100;
+
+    [field: SerializeField] public float MoveSpeed { get; private set; } = 5f;
+
+    [field: SerializeField] public float EffectTime { get; private set; } = 2f;
+
+    [field: SerializeField] public float EffectForce { get; private set; } = 5f;
+
+    [field: SerializeField] public float EffectDuration { get; private set; } = 0.2f;
+}
+using NUnit.Framework;
+using UnityEngine;
+
+public class CharacterDetection : MonoBehaviour
+{
+    public Transform detectionPoint;
+    public LayerMask characterLayer;
+
+    private float DetectionRange = 5.5f;
+
+    public Collider2D[] DetectCharacter()
+    {
+        CircleCollider2D collider = detectionPoint.GetComponent<CircleCollider2D>();
+        DetectionRange = collider.radius;
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            detectionPoint.position,
+            DetectionRange,
+            characterLayer
+        );
+
+        return hits;
+    }
+}
+using UnityEngine;
+using System.Collections;
+using System;
+
+public class KnockbackReceiver : MonoBehaviour, IKnockbackable
+{
+    private Rigidbody2D rb;
+   
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    public void ApplyKnockback(Transform knockbackEntityTransform, float knockbackForce, float knockbackTime, float stunTime)
+    {
+        GetComponent<CharacterAnimation>().InterruptCurrentSkill();
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Hurt);
+        if (!gameObject.activeInHierarchy) return;
+        Debug.Log("Apply Knockback!");
+        StartCoroutine(KnockbackRoutine(knockbackEntityTransform, knockbackForce, knockbackTime, stunTime));
+    }
+
+    private IEnumerator KnockbackRoutine(
+        Transform entity,
+        float knockbackForce,
+        float knockbackTime,
+        float stunTime)
+    {
+        var statusMachine = GetComponent<CharacterStatusMachine>();
+        var movement = GetComponent<CharacterMovement>();
+
+        // 1. Bắt đầu đẩy lùi -> Trạng thái Hurt
+        Vector2 direction = (transform.position - entity.position).normalized;
+        rb.linearVelocity = direction * knockbackForce;
+
+        statusMachine.ChangeStatus(CharacterStatus.Hurt);
+
+        // KHÔNG TẮT CharacterMovement - để BossBrain vẫn chạy logic
+        // Chỉ set velocity qua Rigidbody
+
+        yield return new WaitForSeconds(knockbackTime);
+
+        // 2. Hết đẩy lùi, dừng lực
+        rb.linearVelocity = Vector2.zero;
+
+        // Nếu stun time > 0 → Stun, ngược lại về Idle luôn
+        if (stunTime > 0)
+        {
+            statusMachine.ChangeStatus(CharacterStatus.Stun);
+            yield return new WaitForSeconds(stunTime);
+        }
+
+        // 3. Trả tự do cho Boss về Idle
+        statusMachine.ChangeStatus(CharacterStatus.Idle);
+    }
+}
+using System.Collections;
+using UnityEngine;
+
+public class AOELightingSkill : SkillBase
+{
+    [Header("Spark Variables")]
+    public GameObject sparkFXPrefab;
+    public GameObject borderLightFXPrefab;
+    protected override void Awake()
+    {
+        base.Awake();
+        KeySkill = 'K'; // Khởi tạo đòn đánh thường mặc định là phím J (Dùng nháy đơn ' ' cho kiểu char)
+    }
+
+    public override void Execute(DamageData damageData)
+    {
+        damageData.Damage = damage;
+        base.Execute(damageData);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Cast);
+        Debug.Log("Current Status is: " + GetComponent<CharacterStatusMachine>().CurrentState);
+        animator.PlaySkill(this, "isCasting");
+
+        // Khởi chạy Coroutine tự động dọn dẹp trạng thái sau khi chém xong (Ví dụ: chiêu kéo dài 0.3 giây)
+        StartCoroutine(AutoResetAOERoutine(0.3f));
+    }
+
+    private IEnumerator AutoResetAOERoutine(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        // Kiểm tra nếu lúc này Boss vẫn đang Cast thì mới trả về Idle (tránh đè lên trạng thái Hurt)
+        var statusMachine = GetComponent<CharacterStatusMachine>();
+
+        animator.FinishCast(); // Tắt cờ isCasting trong Animator
+        
+        if (statusMachine.CurrentState == CharacterStatus.Cast)
+        {
+            statusMachine.ChangeStatus(CharacterStatus.Idle); // Đưa logic về Move
+            Debug.Log("AOE Cast finished, returning to Move state.");
+        }
+    }
+
+    public override void ApplyEffect()
+    {
+        //Debug.Log("AOE Attack!");
+
+        if (borderLightFXPrefab != null)
+        {
+            GameObject newFx = Instantiate(borderLightFXPrefab, transform.position, Quaternion.identity);
+            Destroy(newFx, 1f);
+        }
+
+        Collider2D[] enemies = Physics2D.OverlapCircleAll(
+            transform.position,
+            attackRange,
+            targetLayer
+        );
+
+        foreach (Collider2D enemy in enemies)
+        {
+            CharacterHealth health = enemy.GetComponent<CharacterHealth>();
+            if (health != null)
+            {
+                health.ChangeHealth(currentDamageData);
+
+                if (sparkFXPrefab != null)
+                {
+                    GameObject newFx = Instantiate(sparkFXPrefab, health.hitPoint.position, Quaternion.identity);
+                    Destroy(newFx, 1f);
+                }
+            }
+        }
+    }
+
+    public override float Evaluate(AIContext context)
+    {
+        if (!base.CanUse()) return 0;
+
+        float distance = context.DistanceToPlayer;
+        float score = 0;
+
+        // Base score: hiệu quả ở khoảng cách trung bình
+        if (distance <= 5.5f && distance >= 1.0f)
+        {
+            // Tối ưu ở khoảng cách 2-4f
+            if (distance >= 2f && distance <= 4f)
+                score = 70;
+            else
+                score = 50;
+        }
+        else
+        {
+            return 0; // Quá xa hoặc quá gần
+        }
+
+        // BONUS LỚN nếu Player defensive (hay dash, AOE bắt khu vực rộng)
+        score += context.PlayerDefense * 40;
+
+        // Bonus nếu Player aggressive (AOE punish khi Player lao vào)
+        score += context.PlayerAggression * 25;
+
+        // Bonus nếu Player hay dùng AOE (đáp trả bằng AOE)
+        score += context.PlayerAOEAgression * 30;
+
+        // Bonus nếu đầu trận (CombatTime < 15s) -> AOE surprise
+        if (context.CombatTime < 15f)
+            score += 20;
+
+        // ✨ PATTERN BONUS: Nếu Player đang burst (spam skill) -> AOE punish!
+        if (context.PlayerIsBursting)
+            score += 35;
+
+        // ✨ PATTERN BONUS: Nếu Player đang kite -> AOE bắt khu vực
+        if (context.PlayerIsKiting)
+            score += 30;
+
+        return score;
+    }
+}
+using UnityEngine;
+
+public class DashSkill : SkillBase
+{
+    private Transform playerTransform;
+    private CharacterMovement movement;
+    private CharacterHealth health;
+
+    [SerializeField] private float dashSpace = 3.0f;
+    [SerializeField] private float dashEffectDuration = 0.5f;
+    [SerializeField] private GameObject dashFXPrefab;
+
+    [SerializeField] private float playerRadius = 0.5f;
+    [SerializeField] private LayerMask obstacleLayer;
+
+    override protected void Start()
+    {
+        base.Start();
+        playerTransform = transform;
+        health = GetComponent<CharacterHealth>();
+        movement = GetComponent<CharacterMovement>();
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        KeySkill = ';'; // Khởi tạo đòn đánh thường mặc định là phím J (Dùng nháy đơn ' ' cho kiểu char)
+    }
+
+    private void Update()
+    {
+        playerTransform = transform;
+    }
+
+    public override void Execute(DamageData damageData)
+    {
+        damageData.Damage = damage;
+        base.Execute(damageData);
+        
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Dash);
+
+        if (dashFXPrefab != null)
+        {
+            GameObject newFx = Instantiate(dashFXPrefab, health.hitPoint.position, Quaternion.identity);
+            Destroy(newFx, dashEffectDuration);
+        }
+        ApplyEffect();
+    }
+
+    public override void ApplyEffect()
+    {
+        Vector2 dashDirection = movement.getMove();
+        Vector2 destination = (Vector2)playerTransform.position + dashDirection * dashSpace;
+
+        Collider2D hit = Physics2D.OverlapCircle(destination, playerRadius, obstacleLayer);
+        if (hit != null)
+        {
+            float step = .1f;
+            Vector2 adjustPosition = destination;
+            while (hit != null && Vector2.Distance(adjustPosition, playerTransform.position) > 0)
+            {
+                adjustPosition -= step * dashDirection;
+                hit = Physics2D.OverlapCircle(adjustPosition, playerRadius, obstacleLayer);
+            }
+            destination = adjustPosition;
+        } 
+
+        playerTransform.position = destination;
+        if(dashDirection != Vector2.zero)
+            GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Move);
+        else 
+            GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Idle);
+    }
+
+    public override float Evaluate(AIContext context)
+    {
+        if (!base.CanUse()) return 0;
+
+        float distance = context.DistanceToPlayer;
+        float score = 0;
+
+        // Case 1: Player ở quá xa -> Dash để tiếp cận
+        if (distance > 5f)
+        {
+            score = 80;
+            // BONUS nếu Player aggressive (cần đuổi kịp để fight)
+            score += context.PlayerAggression * 30;
+            // BONUS nếu Player hay AOE (cần dash vào gần để tránh AOE)
+            score += context.PlayerAOEAgression * 35;
+        }
+        // Case 2: Boss HP thấp và cần tạo khoảng cách
+        else if (context.BossHPPercent < 0.4f && distance < 3f)
+        {
+            score = 90; // Dash ra xa để heal
+        }
+        // Case 3: Player defensive (hay dash) -> Boss cũng dash để đuổi theo
+        else if (context.PlayerDefense > 0.6f && distance > 3f)
+        {
+            score = 70;
+        }
+        else
+        {
+            return 0; // Không cần dash
+        }
+
+        // ✨ PATTERN BONUS: Nếu Player đang kite -> Dash counter (đuổi theo hoặc thoát)
+        if (context.PlayerIsKiting)
+        {
+            if (distance > 4f)
+                score += 40; // Dash vào gần
+            else
+                score += 25; // Dash ra xa nếu quá gần
+        }
+
+        // ✨ PATTERN BONUS: Nếu Player Hit & Run -> Dash đuổi theo
+        if (context.PlayerIsHitAndRun && distance > 3f)
+            score += 35;
+
+        return score;
+    }
+}
+using System.Collections;
+using UnityEngine;
+
+public class HealSkill : SkillBase
+{
+    [Header("Heal Variables")]
+    public GameObject healFXPrefab;
+
+    protected override void Awake()
+    {
+        base.Awake();
+        KeySkill = 'L'; // Khởi tạo đòn đánh thường mặc định là phím J (Dùng nháy đơn ' ' cho kiểu char)
+    }
+
+    public override void Execute(DamageData damageData)
+    {
+        damageData.Damage = damage;
+        base.Execute(damageData);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Cast);
+        animator.PlaySkill(this, "isCasting");
+
+        StartCoroutine(AutoResetHealRoutine(0.3f));
+    }
+
+    private IEnumerator AutoResetHealRoutine(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        // Kiểm tra nếu lúc này Boss vẫn đang Cast thì mới trả về Idle (tránh đè lên trạng thái Hurt)
+        var statusMachine = GetComponent<CharacterStatusMachine>();
+
+        animator.FinishCast(); // Tắt cờ isCasting trong Animator
+        
+        if (statusMachine.CurrentState == CharacterStatus.Cast)
+        {
+            statusMachine.ChangeStatus(CharacterStatus.Idle); // Đưa logic về Move
+            Debug.Log("AOE Cast finished, returning to Move state.");
+        }
+    }
+
+    public override void ApplyEffect()
+    {
+        //Debug.Log("Heal Apply!");
+
+        CharacterHealth health = GetComponent<CharacterHealth>();
+        if (health != null)
+        {
+            health.Heal(currentDamageData);
+
+            if (healFXPrefab != null)
+            {
+                GameObject newFx = Instantiate(healFXPrefab, health.hitPoint.position, Quaternion.identity);
+                Destroy(newFx, 1f);
+            }
+        }
+    }
+
+    public override float Evaluate(AIContext context)
+    {
+        if (!base.CanUse()) return 0;
+
+        float score = 0;
+        float hpPercent = context.BossHPPercent;
+
+        // Base score dựa trên HP (HP càng thấp càng cần heal)
+        if (hpPercent < 0.3f)
+            score = 150; // CỰC KỲ CAO - sống còn
+        else if (hpPercent < 0.5f)
+            score = 100; // Cao
+        else if (hpPercent < 0.7f)
+            score = 60; // Trung bình
+        else
+            return 0; // HP còn nhiều, không cần heal
+
+        // PENALTY nếu Player aggressive (đang bị dồn ép, khó heal)
+        score -= context.PlayerAggression * 30;
+
+        // BONUS nếu đã tạo khoảng cách an toàn
+        if (context.DistanceToPlayer > 4f)
+            score += 40;
+
+        // PENALTY nếu Player ở quá gần (dễ bị interrupt)
+        if (context.DistanceToPlayer < 2f)
+            score -= 50;
+
+        return Mathf.Max(score, 0);
+    }
+}
+using System.Collections;
+using UnityEngine;
+
+public class MeleeAttackSkill : SkillBase
+{
+    [SerializeField] private Transform attackPoint;
+
+    public MeleeAttackSkill(Transform attackPoint)
+    {
+        this.attackPoint = attackPoint;
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+        KeySkill = 'J'; // Khởi tạo đòn đánh thường mặc định là phím J (Dùng nháy đơn ' ' cho kiểu char)
+    }
+
+    public override void Execute(DamageData damageData)
+    {
+        damageData.Damage = damage;
+        base.Execute(damageData);
+        GetComponent<CharacterStatusMachine>().ChangeStatus(CharacterStatus.Attack);
+        animator.PlaySkill(this, "isAttack");
+
+        // Khởi chạy Coroutine tự động dọn dẹp trạng thái sau khi chém xong (Ví dụ: chiêu kéo dài 0.3 giây)
+        StartCoroutine(AutoResetAttackRoutine(0.5f));
+    }
+
+    private IEnumerator AutoResetAttackRoutine(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+    
+        var statusMachine = GetComponent<CharacterStatusMachine>();
+        
+        // ✅ Luôn tắt animator flag (phòng trường hợp stuck)
+        animator.FinishAttack();
+        
+        // Chỉ đổi status nếu vẫn đang Attack (tránh đè lên Hurt/Idle)
+        if (statusMachine.CurrentState == CharacterStatus.Attack)
+        {
+            statusMachine.ChangeStatus(CharacterStatus.Idle);
+        }
+    }
+
+    public override void ApplyEffect()
+    {
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            attackPoint.position,
+            attackRange,
+            targetLayer
+        );
+
+        foreach (Collider2D hit in hits)
+        {
+            hit.GetComponent<IHealth>().ChangeHealth(currentDamageData);
+            hit.GetComponent<IKnockbackable>().ApplyKnockback(
+                    transform,
+                    currentDamageData.EffectForce,
+                    currentDamageData.EffectTime,
+                    currentDamageData.EffectDuration);
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (attackPoint == null) return;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+    }
+
+    public override float Evaluate(AIContext context)
+    {
+        if (!base.CanUse()) return 0;
+
+        float distance = context.DistanceToPlayer;
+        float score = 0;
+
+        // Base score dựa trên khoảng cách (chỉ hiệu quả ở cận chiến)
+        if (distance <= 1.5f)
+        {
+            // Khoảng cách càng gần, điểm càng cao (nhưng không quá cao)
+            score = 60 * (1.5f - distance) / 1.5f; // Max = 60 ở distance = 0
+        }
+        else
+        {
+            return 0; // Quá xa, không dùng melee
+        }
+
+        // Bonus nếu Player aggressive (đánh nhau cận chiến thì melee tốt)
+        score += context.PlayerAggression * 20;
+
+        // Penalty nếu Player defensive (hay dash, melee khó trúng)
+        score -= context.PlayerDefense * 15;
+
+        // Bonus nếu Boss HP cao (tự tin đấu cận)
+        if (context.BossHPPercent > 0.7f)
+            score += 15;
+
+        return Mathf.Max(score, 0);
+    }
+}
+using System;
+using TMPro;
+using UnityEngine;
+
+public abstract class SkillBase : MonoBehaviour, ISkill
+{
+    [field: SerializeField] public SkillEnum SkillType { get; private set; }
+
+    [Header("Audio Settings")]
+    [SerializeField] protected AudioClip castSound;
+
+    [Header("Skill Stats")]
+    [SerializeField] protected int damage;
+    [SerializeField] protected float coolDown;
+    [SerializeField] protected float attackRange;
+    [SerializeField] protected LayerMask targetLayer;
+    [field: SerializeField] public char KeySkill { get; protected set; }
+
+    [field: SerializeField] public Sprite skillIcon { get; private set; }
+
+    protected DamageData currentDamageData;
+    protected CharacterAnimation animator;
+    protected SkillData skillData;
+    protected float lastUseTime;
+
+    internal GameObject GetAttacker()
+    {
+        return currentDamageData.Attacker;
+    }  
+    
+    internal float GetCooldown()
+    {
+        return coolDown;
+    }
+
+    public void ResetCooldown()
+    {
+        lastUseTime = Time.time - coolDown; // Cho phép dùng ngay
+    }
+
+    protected virtual void Awake()
+    {
+        animator = GetComponent<CharacterAnimation>();
+        animator.SetCurrentSkill(this);
+    }
+
+    protected virtual void Start()
+    {
+        lastUseTime = -coolDown; // Cho phép sử dụng kỹ năng ngay khi bắt đầu
+    }
+
+    public virtual bool CanUse()
+    {
+        return (Time.time >= lastUseTime + coolDown && 
+            GetComponent<CharacterStatusMachine>().CanCast);
+    }
+
+    public virtual void Execute(DamageData damageData)
+    {
+        if (!CanUse()) return;
+        currentDamageData = damageData;
+        lastUseTime = Time.time;
+
+        if (castSound != null)
+            CombatEvents.OnSoundRequested?.Invoke(castSound);
+        CombatEvents.OnPlayerSkillUsed?.Invoke(this);
+    }
+
+    public abstract float Evaluate(AIContext context);
+
+    public abstract void ApplyEffect();
+}
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SkillCaster : MonoBehaviour
+{
+    public SpellUIManager spellUIManager;
+
+    [SerializeField] private List<SkillBase> skills;
+    private Dictionary<SkillEnum, SkillBase> skillMap;
+    private CharacterStats stats;
+
+    public List<SkillBase> GetSkills() { return skills; }
+
+    private void Awake()
+    {
+        stats = GetComponent<CharacterStats>();
+
+        skillMap = new Dictionary<SkillEnum, SkillBase>();
+
+        foreach (SkillBase skill in skills)
+        {
+            skillMap.Add(skill.SkillType, skill);
+        }
+    }
+
+    private void Start()
+    {
+        if(spellUIManager != null) spellUIManager.ShowSkills(skills);
+    }
+
+    public void Execute(SkillEnum type)
+    {
+        if (!skillMap.ContainsKey(type))
+            return;
+
+        SkillBase CurrentSkill = skillMap[type];
+
+        if (!CurrentSkill.CanUse()) return;
+
+        DamageData damageData = BuildContext();
+
+        CurrentSkill.Execute(damageData);
+
+        if (spellUIManager != null)
+        {
+            spellUIManager.HighlightSkill(CurrentSkill);
+            spellUIManager.TriggerCooldown(CurrentSkill, CurrentSkill.GetCooldown());
+        }
+    }
+
+    private void HighlightSkill(SkillBase CurrentSkill)
+    {
+        if (CurrentSkill != null)
+        {
+            spellUIManager.HighlightSkill(CurrentSkill);
+        }
+    }
+
+    private DamageData BuildContext()
+    {
+        return new DamageData
+                {
+                    EffectForce = stats.EffectForce,
+                    EffectTime = stats.EffectTime,
+                    EffectDuration = stats.EffectDuration,
+                    HitDirection = transform.right,
+                    Attacker = gameObject
+                };
+    }    
+}
+using UnityEngine;
+
+public enum CharacterStatus
+{
+    Idle,
+    Move,
+
+    Attack,
+    Cast,
+    Dash,
+    Block,
+
+    Stun,
+    Hurt,
+    Death
+}
+using System;
+using Unity.Mathematics;
+using UnityEngine;
+
+public static class CombatEvents
+{
+    public static Action<SkillBase> OnPlayerSkillUsed;
+    public static Action<AudioClip> OnSoundRequested;
+    public static Action<bool> OnGameEnded;
+}
+using UnityEngine;
+
+public enum SkillEnum 
+{
+    Idle,
+    Attack,
+    Dodge,
+    AOE,
+    Heal,
+    Dash
+}
+using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
+using System.Collections;
+
+public class SpellSlot : MonoBehaviour
+{
+    [Header("References")]
+    public Image iconImage;
+    public GameObject highlight;
+    [SerializeField] private TMP_Text spellText, keyActive;
+    [SerializeField] private Image cooldownOverlay;
+
+    public SkillBase AssignedSkill { get; private set; }
+
+    [SerializeField] private Color normalColor;
+    [SerializeField] private Color highlightColor = Color.white;
+    private Vector3 normalScale = Vector3.one;
+    private Vector3 highlightScale = Vector3.one * 1.2f;
+
+    [Header("Pop Settings")]
+    [SerializeField] private float popScale = 1.3f;
+    [SerializeField] private float popDuration = 0.2f;
+
+    public void SetSkill(SkillBase skill)
+    {
+        AssignedSkill = skill;
+
+        if (skill != null)
+        {
+            cooldownOverlay.sprite = skill.skillIcon;
+            iconImage.sprite = skill != null ? skill.skillIcon : null;
+            iconImage.gameObject.SetActive(true);
+            keyActive.text = skill.KeySkill.ToString();
+        }
+        else
+        {
+            AssignedSkill = null;
+            iconImage.sprite = null;
+            iconImage.gameObject.SetActive(false);
+            keyActive.text = "";
+        }
+
+        cooldownOverlay.fillAmount = 0; // Reset cooldown overlay
+        SetHighlight(false);
+    }
+
+    public void SetHighlight(bool active)
+    {
+        highlight.SetActive(active);
+
+        iconImage.color = active ? highlightColor : normalColor;
+        iconImage.rectTransform.localPosition = isActiveAndEnabled ? highlightScale : normalScale;
+
+        if (active && AssignedSkill != null)
+            spellText.text = AssignedSkill.SkillType.ToString();
+
+        spellText.enabled = active;
+    }
+
+    public void TriggerCooldown(float cooldownDuration)
+    {
+        if (cooldownOverlay != null)
+            StartCoroutine(CooldownRoutine(cooldownDuration));
+    }
+
+    private IEnumerator CooldownRoutine(float cooldownDuration)
+    {
+        float elapsed = 0f;
+        while (elapsed < cooldownDuration)
+        {
+            elapsed += Time.deltaTime;
+            cooldownOverlay.fillAmount = Mathf.Clamp01(elapsed / cooldownDuration);
+            yield return null;
+        }
+        cooldownOverlay.fillAmount = 0f; // Reset after cooldown
+        yield return StartCoroutine(PopEffect());
+    }
+
+    private IEnumerator PopEffect()
+    {
+        float elapsed = 0f;
+        float halfDuration = popDuration / 2f;
+
+        while (elapsed < halfDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / halfDuration;
+            iconImage.rectTransform.localScale = Vector3.Lerp(normalScale, Vector3.one * popScale, t);
+            yield return null;
+        }
+
+        elapsed = 0;
+
+        while (elapsed < halfDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / halfDuration;
+            iconImage.rectTransform.localScale = Vector3.Lerp(Vector3.one * popScale, normalScale, t);
+            yield return null;
+        }
+
+        iconImage.rectTransform.localScale = normalScale; // Reset scale
+    }
+}
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SpellUIManager : MonoBehaviour
+{
+    [SerializeField] private List<SpellSlot> spellSlots = new List<SpellSlot>();
+
+    public void ShowSkills(List<SkillBase> skills)
+    {
+        for (int i = 0; i < spellSlots.Count; i++)
+        {
+            if (i < skills.Count && skills[i] != null)
+            {
+                //Debug.Log($"Assigning skill {skills[i].SkillType} to slot {i} and has key {skills[i].KeySkill}");
+                spellSlots[i].SetSkill(skills[i]);
+                spellSlots[i].gameObject.SetActive(true);
+            }
+            else
+            {
+                spellSlots[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void HighlightSkill(SkillBase activeSkill)
+    {
+        foreach (var slot in spellSlots)
+        {
+            if (slot.AssignedSkill == activeSkill)
+            {
+                slot.SetHighlight(true);
+            }
+            else
+            {
+                slot.SetHighlight(false);
+            }
+        }
+    }
+
+    public void TriggerCooldown(SkillBase skill, float cooldownDuration)
+    {
+        foreach (var slot in spellSlots)
+        {
+            if (slot.AssignedSkill == skill)
+            {
+                slot.TriggerCooldown(cooldownDuration);
+                break;
+            }
+        }
+    }
+}
+using UnityEngine;
+
+public struct DamageData
+{
+    public int Damage;
+    public Vector2 HitDirection;
+    public float EffectForce;
+    public float EffectTime;
+    public float EffectDuration;
+    public GameObject Attacker;
+}
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "Skills/Skill Data")]
+public class SkillData : ScriptableObject
+{
+    public string skillName;
+
+    public float cooldown;
+
+    public int damage;
+
+    public float range;
+}
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
+public class PlayerInputBrain : MonoBehaviour
+{
+    [SerializeField] private SkillCaster skillCaster;
+    [SerializeField] private CharacterMovement movement;
+
+    private CharacterStatusMachine StatusMachine;
+
+    [Header("Input")]
+    public InputAction MoveAction;
+    public InputAction AttackAction;
+    public InputAction HealAction;
+    public InputAction AOEAction;
+    public InputAction DashAction;
+
+    private void Start()
+    {
+        StatusMachine = GetComponent<CharacterStatusMachine>();
+        skillCaster = GetComponent<SkillCaster>();
+        movement = GetComponent<CharacterMovement>();
+    }
+
+    private void OnEnable()
+    {
+        MoveAction.Enable();
+        AttackAction.Enable();
+        AOEAction.Enable();
+        HealAction.Enable();
+        DashAction.Enable();
+    }
+
+    private void OnDisable()
+    {
+        MoveAction.Disable();
+        AttackAction.Disable();
+        AOEAction.Disable();
+        HealAction.Disable();
+        DashAction.Disable();
+    }
+
+    private void Update()
+    {
+        if (AttackAction.triggered)
+        {
+            skillCaster.Execute(SkillEnum.Attack);
+        }
+        else if (DashAction.triggered)
+        {
+            skillCaster.Execute(SkillEnum.Dash);
+        }
+        else
+        {
+            if (HealAction.triggered)
+                skillCaster.Execute(SkillEnum.Heal);
+            else if (AOEAction.triggered)
+                skillCaster.Execute(SkillEnum.AOE); 
+        }  
+    }
+
+    private void FixedUpdate()
+    {
+        movement.Move(MoveAction.ReadValue<Vector2>());
+    }
+}
+public interface IDamageable
+{
+    void TakeDamage(DamageData damageData);
+}
+
+using UnityEngine;
+
+public interface IHealth {
+    void ChangeHealth(DamageData damageData);
+}
+using UnityEngine;
+
+public interface IKnockbackable
+{
+    void ApplyKnockback(
+        Transform knockbackEntityTransform,
+        float knockbackForce,
+        float knockbackTime,
+        float stunTime
+    );
+}
+using UnityEngine;
+public interface IMovable
+{
+    void Move(Vector2 moveDirection);
+    void Stop();
+}
+public interface ISkill
+{
+    bool CanUse();
+    void Execute(DamageData damageData);
+}
+using TMPro;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class EndGamePopup : MonoBehaviour
+{
+    [Header("UI References")]
+    [SerializeField] private GameObject endGamePopup;
+    [SerializeField] private TMP_Text endGameTitle;
+
+    [Header("Buttons")]
+    [SerializeField] private Button quitGameButton;
+    [SerializeField] private Button restartButton;
+    [SerializeField] private Button mainMenuButton;
+
+    private void Start()
+    {
+        if (endGamePopup != null)
+            endGamePopup.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        // ĐĂNG KÝ LẮNG NGHE SỰ KIỆN TỪ VŨ TRỤ EVENT
+        CombatEvents.OnGameEnded += HandleGameEnd;
+
+        if (restartButton != null) restartButton.onClick.AddListener(RestartGame);
+        if (mainMenuButton != null) mainMenuButton.onClick.AddListener(BackToMainMenu);
+        if (quitGameButton != null) mainMenuButton.onClick.AddListener(QuitGame);
+    }
+
+    private void OnDisable()
+    {
+        // HỦY ĐĂNG KÝ
+        CombatEvents.OnGameEnded -= HandleGameEnd;
+
+        if (restartButton != null) restartButton.onClick.RemoveListener(RestartGame);
+        if (mainMenuButton != null) mainMenuButton.onClick.RemoveListener(BackToMainMenu);
+        if (quitGameButton != null) mainMenuButton.onClick.RemoveListener(QuitGame);
+    }
+
+    // Hàm nhận dữ liệu trực tiếp từ Sự kiện truyền về
+    private void HandleGameEnd(bool isPlayerWin)
+    {
+        if (endGamePopup == null) return;
+        endGamePopup.SetActive(true);
+
+        // Đọc thẳng kết quả từ biến truyền vào, không cần so sánh tag hay check máu
+        endGameTitle.text = isPlayerWin ? "You Win!" : "You Died!";
+        Time.timeScale = 0;
+    }
+
+    public void RestartGame()
+    {
+        Time.timeScale = 1;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void BackToMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(0);
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }    
+}
+using TMPro;
+using UnityEngine;
+
+public class HealthBarUI : MonoBehaviour
+{
+    [SerializeField]
+    private CharacterHealth health;
+
+    private float maxHealthWidth;
+    public TMP_Text healthText;
+    public Animator healthTextAnim;
+    public RectTransform hpRect;
+
+    private void Awake()
+    {
+        if(health == null) 
+            health = GetComponent<CharacterHealth>();
+        maxHealthWidth = hpRect.sizeDelta.x;
+        UpdateUI(health.GetCurrentHealth());
+    }
+
+    private void OnEnable()
+    {
+        health.OnHealthChanged += UpdateUI;
+    }
+
+    private void OnDisable()
+    {
+        health.OnHealthChanged -= UpdateUI;
+    }
+
+    private void UpdateUI(int current)
+    {
+        //Debug.Log("current HP is: " + current);
+        healthText.text = current + "/" + health.GetComponent<CharacterStats>().MaxHealth;
+        float hpPercent = 1.0f * current / health.GetComponent<CharacterStats>().MaxHealth;
+        float newWidth = maxHealthWidth * hpPercent;
+        hpRect.sizeDelta = new Vector2(newWidth, hpRect.sizeDelta.y);
+    }
+}
+using TMPro;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+
+public class PauseGamePopup : MonoBehaviour
+{
+    [Header("UI References")]
+    // Tên biến nên đổi thành pauseGamePopup để tránh nhầm với EndGame
+    [SerializeField] private GameObject pauseGamePopup;
+
+    [Header("Buttons")]
+    [SerializeField] private Button resumeButton;     // Nút Tiếp tục (Chức năng 1)
+    [SerializeField] private Button mainMenuButton;   // Nút Quay lại Menu (Chức năng 2)
+    [SerializeField] private Button quitGameButton;     // Nút Thoát game (Chức năng 3)
+
+    [SerializeField] private InputAction PauseGameAction;
+
+    private bool isPaused = false;
+
+    private void Start()
+    {
+        // Ban đầu vào trận đấu thì ẩn bảng Pause đi
+        if (pauseGamePopup != null)
+            pauseGamePopup.SetActive(false);
+        PauseGameAction.Enable();
+    }
+
+    private void OnEnable()
+    {
+        // Đăng ký sự kiện Click cho các nút bấm bằng code
+        if (resumeButton != null) resumeButton.onClick.AddListener(ResumeGame);
+        if (mainMenuButton != null) mainMenuButton.onClick.AddListener(BackToMainMenu);
+        if (quitGameButton != null) quitGameButton.onClick.AddListener(QuitGame);
+    }
+
+    private void OnDisable()
+    {
+        // Hủy đăng ký để tránh rò rỉ bộ nhớ (Memory Leak)
+        if (resumeButton != null) resumeButton.onClick.RemoveListener(ResumeGame);
+        if (mainMenuButton != null) mainMenuButton.onClick.RemoveListener(BackToMainMenu);
+        if (quitGameButton != null) quitGameButton.onClick.RemoveListener(QuitGame);
+    }
+
+    private void Update()
+    {
+        // Lắng nghe nút ESC từ bàn phím (Hoạt động cho cả Input System cũ và mới)
+        if (PauseGameAction.triggered)
+        {
+            // Nếu game đã kết thúc (Time.timeScale == 0 do EndGamePopup gọi), ta không cho Pause nữa
+            if (!WaitingSceneUI.IsBattleStarted || (Time.timeScale == 0 && !isPaused))
+                return;
+
+            if (isPaused)
+            {
+                ResumeGame();
+            }
+            else
+            {
+                PauseGame();
+            }
+        }
+    }
+
+    public void PauseGame()
+    {
+        isPaused = true;
+        if (pauseGamePopup != null)
+            pauseGamePopup.SetActive(true);
+
+        // Đóng băng toàn bộ thời gian vật lý, Coroutine, Update và Animator trong game
+        Time.timeScale = 0f;
+    }
+
+    public void ResumeGame()
+    {
+        isPaused = false;
+        if (pauseGamePopup != null)
+            pauseGamePopup.SetActive(false);
+
+        // Khôi phục lại thời gian chạy bình thường của game
+        Time.timeScale = 1f;
+    }
+
+    public void RestartGame()
+    {
+        Time.timeScale = 1f; // Phải reset lại thời gian trước khi chuyển Scene
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void BackToMainMenu()
+    {
+        Time.timeScale = 1f; // Phải reset lại thời gian trước khi chuyển Scene
+        SceneManager.LoadScene(0); // Về màn hình Menu chính (Build Index = 0)
+    }
+
+    public void QuitGame()
+    {
+        Debug.Log("Quitting Game...");
+        Application.Quit(); // Lệnh thoát hoàn toàn ứng dụng (Chỉ hoạt động khi Build ra file .exe/.apk)
+    }
+}
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class StartMenuUI : MonoBehaviour
+{
+    [SerializeField] private GameObject TutorialPanelPrefab;
+
+    private void Awake()
+    {
+        TutorialPanelPrefab.SetActive(false);
+    }
+
+    public void PlayGame()
+    {
+        SceneManager.LoadScene(1);
+    }   
+    
+    public void ExitGame()
+    {
+        Application.Quit();
+    } 
+    
+    public void OptionsOn()
+    {
+        TutorialPanelPrefab.SetActive(true);
+    }    
+
+    public void OptionsOff()
+    {
+        TutorialPanelPrefab.SetActive(false);
+    }
+}
+using System.Collections;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class WaitingSceneUI : MonoBehaviour
+{
+    [SerializeField] private GameObject waitingScenePanel;
+    [SerializeField] private TMP_Text countdown;
+
+    public static bool IsBattleStarted { get; private set; } = false;
+
+    private void Awake()
+    {
+        IsBattleStarted = false;
+    }
+
+    private void Start()
+    {
+        if (!waitingScenePanel.activeSelf) 
+            waitingScenePanel.SetActive(true);
+
+        Time.timeScale = 0f;
+        // Khởi động chuỗi đếm ngược ngay khi màn chơi bắt đầu
+        StartCoroutine(CountdownRoutine());
+    }
+
+    private IEnumerator CountdownRoutine()
+    {
+        // 1. Đảm bảo thời gian chạy bình thường để đếm ngược hoạt động
+        waitingScenePanel.SetActive(true);
+
+        // 2. Vòng lặp đếm ngược từ 3 về 1
+        int count = 3; // Số giây đếm ngược
+        while (count > 0)
+        {
+            if (countdown != null)
+                countdown.text = count.ToString(); // Cập nhật UI đếm ngược
+            yield return new WaitForSecondsRealtime(1f); // Đợi 1 giây
+            count--;
+        }
+
+        // 3. Hiện chữ thông báo bắt đầu
+        if (countdown != null)
+            countdown.text = "Start!";
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        // 4. Dọn dẹp: Tắt toàn bộ bảng chuẩn bị để người chơi bắt đầu combat
+        waitingScenePanel.SetActive(false);
+
+        // Đảm bảo game chạy bình thường, KHÔNG để timeScale = 0 ở đây bạn nhé!
+        Time.timeScale = 1f;
+        IsBattleStarted = true;
+    }
+}

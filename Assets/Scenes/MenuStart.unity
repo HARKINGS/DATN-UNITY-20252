@@ -667,6 +667,18 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1091713951155718520, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 09e31210bd9f6b74e831b4ecb2deaf43, type: 2}
+    - target: {fileID: 1091713951155718520, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -2085615785615114802, guid: 09e31210bd9f6b74e831b4ecb2deaf43, type: 2}
+    - target: {fileID: 1091713951155718520, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1491699968626538786, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
@@ -802,6 +814,81 @@ PrefabInstance:
     - target: {fileID: 7889353526110606841, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8009164096167616523, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 1511.1145
+      objectReference: {fileID: 0}
+    - target: {fileID: 8009164096167616523, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8009164096167616523, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 323
+      objectReference: {fileID: 0}
+    - target: {fileID: 8779452577276262856, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 09e31210bd9f6b74e831b4ecb2deaf43, type: 2}
+    - target: {fileID: 8779452577276262856, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -2085615785615114802, guid: 09e31210bd9f6b74e831b4ecb2deaf43, type: 2}
+    - target: {fileID: 8779452577276262856, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8793979201580099663, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_margin.z
+      value: 0.31640625
+      objectReference: {fileID: 0}
+    - target: {fileID: 8793979201580099663, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 1c19ab0d4f6616b418025d848049fb66, type: 2}
+    - target: {fileID: 8793979201580099663, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2315374888948667431, guid: 1c19ab0d4f6616b418025d848049fb66, type: 2}
+    - target: {fileID: 8793979201580099663, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8927327141546052632, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 09e31210bd9f6b74e831b4ecb2deaf43, type: 2}
+    - target: {fileID: 8927327141546052632, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -2085615785615114802, guid: 09e31210bd9f6b74e831b4ecb2deaf43, type: 2}
+    - target: {fileID: 8927327141546052632, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9025696996378045916, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_text
+      value: 'Move using the A, W, S, D keys or the arrow keys to go left, up, down,
+        and right.Click Tab to Pause game.
+
+
+        Melee Attack: J Button
+
+        AOE
+        Skill: K Button
+
+        Heal Skill: L Button
+
+        Dash Skill: ; Button '
+      objectReference: {fileID: 0}
+    - target: {fileID: 9025696996378045916, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_fontSize
+      value: 45
+      objectReference: {fileID: 0}
+    - target: {fileID: 9025696996378045916, guid: f2880add0e7100749ba5365e8ab9feb5, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 45
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

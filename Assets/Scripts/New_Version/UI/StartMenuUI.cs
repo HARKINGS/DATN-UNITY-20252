@@ -8,7 +8,6 @@ public class StartMenuUI : MonoBehaviour
 
     private void Awake()
     {
-        //TutorialPanelPrefab = Resources.Load<GameObject>("TutorialPanel");
         TutorialPanelPrefab.SetActive(false);
     }
 
@@ -31,9 +30,4 @@ public class StartMenuUI : MonoBehaviour
     {
         TutorialPanelPrefab.SetActive(false);
     }
-
-    public void TutorialGame()
-    {
-
-    }    
 }
