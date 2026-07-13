@@ -22,7 +22,7 @@ public class BossBrain : MonoBehaviour
     // Circle movement state
     private Vector2 currentCircleDirection;
     private float circleDirectionChangeTime = 0f;
-    private float circleDirectionDuration = 2f; // Giữ hướng vòng 2 giây trước khi đổi
+    private float circleDirectionDuration = 5f; // ✅ Tăng từ 2s → 5s để thấy rõ hành vi circle kite
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
@@ -147,38 +147,33 @@ public class BossBrain : MonoBehaviour
             PlayerIsHitAndRun: memory.IsHitAndRun()
         );
 
-        // Debug patterns
-        if (context.PlayerIsBursting || context.PlayerIsKiting || context.PlayerIsHitAndRun)
-        {
-            Debug.Log($"[AI Pattern] Burst: {context.PlayerIsBursting} | Kite: {context.PlayerIsKiting} | Hit&Run: {context.PlayerIsHitAndRun}");
-        }
+        // ✨ PATTERN DETECTION VISUALIZATION (Demo Showcase)
+        if (context.PlayerIsBursting)
+            Debug.Log("🔥 [PATTERN DETECTED] Player is BURSTING!");
+        if (context.PlayerIsKiting)
+            Debug.Log("🏃 [PATTERN DETECTED] Player is KITING!");
+        if (context.PlayerIsHitAndRun)
+            Debug.Log("⚔️ [PATTERN DETECTED] Player is HIT & RUN!");
 
-        // Đánh giá từng skill
         foreach (SkillBase skill in skills)
         {
             float score = skill.Evaluate(context);
-
-            // Debug log để kiểm tra
-            if (score > 0)
-            {
-                Debug.Log($"[AI] {skill.SkillType}: Score = {score:F1} | Distance = {context.DistanceToPlayer:F1}");
-            }
-
+    
             if (score > bestScore)
             {
                 bestScore = score;
                 bestSkill = skill;
             }
         }
+        
+        Debug.Log("aggression: " + aggression +
+            " | defensive: " + defensive +
+            " | aoeAggression: " + aoeAggression +
+            " | healFrequency: " + healFrequency);
 
-        if (bestSkill == null || bestScore <= 0f)
-        {
-            Debug.Log("[AI] Không tìm được skill phù hợp hoặc đang cooldown.");
-            return;
-        }
+        if (bestSkill == null || bestScore <= 0f) return;
 
         // Thực thi skill tốt nhất
-        Debug.Log($"[AI] ✓ Executing: {bestSkill.SkillType} (Score: {bestScore:F1})");
         skillCaster.Execute(bestSkill.SkillType);
     }
 

@@ -76,11 +76,11 @@ public class MeleeAttackSkill : SkillBase
         float distance = context.DistanceToPlayer;
         float score = 0;
 
-        // Base score dựa trên khoảng cách (chỉ hiệu quả ở cận chiến)
+        // ✅ AMPLIFIED: Base score tăng từ 60 → 80 để gap lớn hơn
         if (distance <= 1.5f)
         {
-            // Khoảng cách càng gần, điểm càng cao (nhưng không quá cao)
-            score = 60 * (1.5f - distance) / 1.5f; // Max = 60 ở distance = 0
+            // Khoảng cách càng gần, điểm càng cao
+            score = 80 * (1.5f - distance) / 1.5f; // Max = 80 ở distance = 0
         }
         else
         {

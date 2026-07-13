@@ -97,6 +97,7 @@ public class PauseGamePopup : MonoBehaviour
 
     public void QuitGame()
     {
+        Time.timeScale = 1f;
         Debug.Log("Quitting Game...");
         Application.Quit(); // Lệnh thoát hoàn toàn ứng dụng (Chỉ hoạt động khi Build ra file .exe/.apk)
     }

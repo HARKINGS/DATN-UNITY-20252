@@ -28,7 +28,7 @@ public abstract class SkillBase : MonoBehaviour, ISkill
         return currentDamageData.Attacker;
     }  
     
-    internal float GetCooldown()
+    public float GetCooldown()
     {
         return coolDown;
     }

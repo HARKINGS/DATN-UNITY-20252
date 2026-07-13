@@ -106,13 +106,13 @@ public class AOELightingSkill : SkillBase
         if (context.CombatTime < 15f)
             score += 20;
 
-        // ✨ PATTERN BONUS: Nếu Player đang burst (spam skill) -> AOE punish!
+        // ✨ AMPLIFIED: Pattern bonus tăng từ 35 → 50 để gap rõ hơn
         if (context.PlayerIsBursting)
-            score += 35;
+            score += 50;
 
-        // ✨ PATTERN BONUS: Nếu Player đang kite -> AOE bắt khu vực
+        // ✨ AMPLIFIED: Pattern bonus tăng từ 30 → 45
         if (context.PlayerIsKiting)
-            score += 30;
+            score += 45;
 
         return score;
     }

@@ -62,13 +62,13 @@ public class HealSkill : SkillBase
         float score = 0;
         float hpPercent = context.BossHPPercent;
 
-        // Base score dựa trên HP (HP càng thấp càng cần heal)
+        // ✅ AMPLIFIED: Base score tăng từ 150 → 200 để thấy rõ priority sống còn
         if (hpPercent < 0.3f)
-            score = 150; // CỰC KỲ CAO - sống còn
+            score = 200; // CỰC KỲ CAO - sống còn
         else if (hpPercent < 0.5f)
-            score = 100; // Cao
+            score = 120; // Tăng từ 100 → 120
         else if (hpPercent < 0.7f)
-            score = 60; // Trung bình
+            score = 70; // Tăng từ 60 → 70
         else
             return 0; // HP còn nhiều, không cần heal
 

@@ -438,18 +438,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: -8816189396746585879, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
-      propertyPath: coolDown
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: -4630813015416262054, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
-      propertyPath: coolDown
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 707868435415491756, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
-      propertyPath: coolDown
-      value: 8
-      objectReference: {fileID: 0}
     - target: {fileID: 1167618663516176533, guid: 91f08763ff5601540808760df1f8ed1b, type: 3}
       propertyPath: m_Name
       value: Boss

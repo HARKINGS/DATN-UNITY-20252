@@ -145,10 +145,6 @@ public class BossMemory : MonoBehaviour
 
     // === SMART METRICS (Normalized [0, 1]) ===
     
-    /// <summary>
-    /// Aggression = % của Attack trong tổng hành động tấn công (Attack + AOE)
-    /// Normalize bằng sigmoid để smooth
-    /// </summary>
     public float GetAggressionLevel()
     {
         int totalActions = GetTotalActions();
@@ -158,11 +154,13 @@ public class BossMemory : MonoBehaviour
         int offensiveActions = PlayerAttackCount + PlayerAOECount;
         if (offensiveActions == 0) return 0f;
         
-        float attackRatio = (float)PlayerAttackCount / offensiveActions;
+        float attackRatio = (float)PlayerAttackCount / totalActions;
         
         // Bonus nếu attack frequency cao (tấn công liên tục)
-        float attackFrequency = weightedAttackScore / Mathf.Max(CombatTime, 5f);
-        
+        float attackFrequency = weightedAttackScore / Mathf.Max(CombatTime, 30f);
+
+        Debug.Log("weightedAttackScore: " + weightedAttackScore);
+
         // Combine ratio + frequency
         float aggression = attackRatio * 0.6f + Mathf.Clamp01(attackFrequency) * 0.4f;
         
@@ -170,75 +168,92 @@ public class BossMemory : MonoBehaviour
         return Sigmoid(aggression * 2 - 1); // Map [0,1] -> [-1,1] -> sigmoid
     }
 
-    /// <summary>
-    /// Defensive = % của Dash trong tổng hành động
-    /// </summary>
     public float GetDefensiveLevel()
     {
         int totalActions = GetTotalActions();
         if (totalActions < 3) return 0.3f; // Default medium defensive
         
-        // % Dash trong tổng hành động
-        float dashRatio = (float)PlayerDashCount / totalActions;
+        // // % Dash trong tổng hành động
+        // float dashRatio = (float)PlayerDashCount / totalActions;
         
-        // Bonus nếu dash trong short-term window cao (đang kite)
+        // // Bonus nếu dash trong short-term window cao (đang kite)
+        // int shortTermTotal = GetShortTermTotalActions();
+        // float shortTermDashRatio = shortTermTotal > 0 ? 
+        //     (float)shortTermCounts[SkillEnum.Dash] / shortTermTotal : 0f;
+        
+        // // Recent behavior quan trọng hơn
+        // float defensive = dashRatio * 0.4f + shortTermDashRatio * 0.6f;
+        
+        // return Mathf.Clamp01(defensive * 2); // Amplify và clamp
+        // ✅ NEW: Normalized frequency thay vì raw ratio
+
+        float expectedDashes = CombatTime / 2f;
+        float dashUsageRate = expectedDashes > 0 ? PlayerDashCount / expectedDashes : 0f;
+        dashUsageRate = Mathf.Clamp01(dashUsageRate); // Clamp to [0,1]
+        
+        // Short-term tracking
         int shortTermTotal = GetShortTermTotalActions();
         float shortTermDashRatio = shortTermTotal > 0 ? 
             (float)shortTermCounts[SkillEnum.Dash] / shortTermTotal : 0f;
         
-        // Recent behavior quan trọng hơn
-        float defensive = dashRatio * 0.4f + shortTermDashRatio * 0.6f;
+        // Combine: Short-term vẫn quan trọng hơn (60/40)
+        float defensive = dashUsageRate * 0.4f + shortTermDashRatio * 0.6f;
         
-        return Mathf.Clamp01(defensive * 2); // Amplify và clamp
+        // ✅ Amplify x2 để có range [0, 1] thay vì [0, 0.5]
+        return Mathf.Clamp01(defensive * 2f);
     }
 
-    /// <summary>
-    /// AOE Level = Tần suất dùng AOE + xét tỷ lệ với total actions
-    /// </summary>
     public float GetAOELevel()
     {
         int totalActions = GetTotalActions();
         if (totalActions < 3) return 0.2f;
         
         // % AOE trong tổng hành động
-        float aoeRatio = (float)PlayerAOECount / totalActions;
-        
+        // float aoeRatio = (float)PlayerAOECount / totalActions;
+
+        float expectedAOE = CombatTime / 8f;
+        float aoeUsageRate = expectedAOE > 0 ? PlayerAOECount / expectedAOE : 0f;
+        aoeUsageRate = Mathf.Clamp01(aoeUsageRate * 2f); // Amplify x2 vì AOE cooldown dài
+
         // Frequency (skill/second)
-        float aoeFrequency = weightedAOEScore / Mathf.Max(CombatTime, 5f);
+        float aoeFrequency = weightedAOEScore / Mathf.Max(CombatTime, 30f);
         
         // Combine
-        float aoeLevel = aoeRatio * 0.5f + Mathf.Clamp01(aoeFrequency * 2) * 0.5f;
-        
-        return Mathf.Clamp01(aoeLevel * 1.5f); // Amplify
+        //float aoeLevel = aoeRatio * 0.5f + Mathf.Clamp01(aoeFrequency * 2) * 0.5f;
+        //return Mathf.Clamp01(aoeLevel * 1.5f); // Amplify
+
+        // Combine 60/40
+        float aoeLevel = aoeUsageRate * 0.6f + Mathf.Clamp01(aoeFrequency * 5f) * 0.4f;
+        return Mathf.Clamp01(aoeLevel);
     }
 
-    /// <summary>
-    /// Healing Level = Tần suất heal (quan trọng vì heal ít nhưng impact cao)
-    /// </summary>
     public float GetHealingLevel()
     {
         if (CombatTime < 5f) return 0f; // Chưa đủ thời gian đánh giá
         
-        // Mỗi lần heal có trọng số cao
-        float healFrequency = weightedHealScore / Mathf.Max(CombatTime, 10f);
+        // // Mỗi lần heal có trọng số cao
+        // float healFrequency = weightedHealScore / Mathf.Max(CombatTime, 10f);
         
-        // Normalize: 1 heal mỗi 10s = 0.5, 1 heal mỗi 5s = 1.0
-        return Mathf.Clamp01(healFrequency * 10f);
+        // // Normalize: 1 heal mỗi 10s = 0.5, 1 heal mỗi 5s = 1.0
+        // return Mathf.Clamp01(healFrequency * 10f);
+
+        // ✅ NEW: Normalized usage rate
+        float expectedHeals = CombatTime / 12f;
+        float healUsageRate = expectedHeals > 0 ? PlayerHealCount / expectedHeals : 0f;
+        
+        // Amplify x3 vì Heal rất critical (1 heal = high impact)
+        healUsageRate = Mathf.Clamp01(healUsageRate * 3f);
+        
+        return healUsageRate;
     }
 
     // === PATTERN DETECTION ===
-    
-    /// <summary>
-    /// Phát hiện Player đang burst (spam skill liên tục)
-    /// </summary>
+
     public bool IsBursting()
     {
         return isBursting;
     }
 
-    /// <summary>
-    /// Phát hiện Player đang kite (dash nhiều + giữ khoảng cách)
-    /// </summary>
     public bool IsKiting()
     {
         // Kite = Dash chiếm > 40% hành động gần đây
@@ -246,22 +261,19 @@ public class BossMemory : MonoBehaviour
         if (shortTermTotal < 5) return false;
         
         float recentDashRatio = (float)shortTermCounts[SkillEnum.Dash] / shortTermTotal;
-        return recentDashRatio > 0.4f;
+        return recentDashRatio > 0.3f;
     }
 
-    /// <summary>
-    /// Phát hiện Player đang hit & run (Attack + Dash xen kẽ)
-    /// </summary>
     public bool IsHitAndRun()
     {
         int shortTermTotal = GetShortTermTotalActions();
-        if (shortTermTotal < 6) return false;
+        if (shortTermTotal < 5) return false;
         
         int attacks = shortTermCounts[SkillEnum.Attack];
         int dashes = shortTermCounts[SkillEnum.Dash];
         
         // Hit & Run = Attack và Dash đều có, tỷ lệ gần nhau
-        return attacks >= 2 && dashes >= 2 && Mathf.Abs(attacks - dashes) <= 2;
+        return attacks >= 2 && dashes >= 2 && Mathf.Abs(attacks - dashes) <= 3;
     }
 
     // === UTILITY ===
@@ -282,13 +294,5 @@ public class BossMemory : MonoBehaviour
     private float Sigmoid(float x)
     {
         return 1f / (1f + Mathf.Exp(-x));
-    }
-
-    // === DEBUG ===
-    public void LogMemoryState()
-    {
-        Debug.Log($"[Memory] Total: {GetTotalActions()} | Aggression: {GetAggressionLevel():F2} | " +
-                  $"Defensive: {GetDefensiveLevel():F2} | AOE: {GetAOELevel():F2} | " +
-                  $"Heal: {GetHealingLevel():F2} | Burst: {IsBursting()} | Kite: {IsKiting()}");
     }
 }
